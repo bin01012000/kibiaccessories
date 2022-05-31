@@ -1,0 +1,186 @@
+@use "../../sass/mixins" as *;
+
+$primary-width-pc: 255px;
+$primary-width-tablet: 230px;
+$primary-width-mobile: 170px;
+
+$primary-img-width-pc: 221px;
+$primary-img-width-tablet: 200px;
+$primary-img-width-mobile: 140px;
+.productCardContainer {
+  width: $primary-width-pc;
+  height: 430px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .top {
+    width: $primary-width-pc;
+    height: 100px;
+    background-color: #f1ddc9;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+  }
+  .bottom {
+    position: relative;
+    width: $primary-width-pc;
+    height: 330px;
+    background-color: #fff;
+    .image {
+      img {
+        position: absolute;
+        top: -90px;
+        left: 50%;
+        width: $primary-img-width-pc;
+        height: $primary-img-width-pc;
+        border-radius: 30px;
+        object-fit: cover;
+        transform: translateX(-50%);
+      }
+    }
+    .content {
+      padding-top: 140px;
+      padding-left: 20px;
+      padding-right: 20px;
+
+      .title {
+        font-family: "Taviraj";
+        font-style: normal;
+        font-weight: 500;
+        font-size: 24px;
+        line-height: 32px;
+        /* identical to box height, or 133% */
+        color: #333333;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-word;
+      }
+      .saleOff {
+        font-family: "Taviraj";
+        font-style: normal;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 24px;
+        /* identical to box height, or 150% */
+        color: #777777;
+      }
+      .oldPrice {
+        font-family: "Taviraj";
+        font-style: normal;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 24px;
+        /* identical to box height, or 150% */
+        color: #777777;
+      }
+      .newPrice {
+        font-family: "Taviraj";
+        font-style: normal;
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 32px;
+        /* identical to box height, or 133% */
+        color: #333333;
+      }
+    }
+    .btn {
+      display: flex;
+      justify-content: center;
+      gap: 0 5px;
+      margin-top: 10px;
+      svg {
+        cursor: pointer;
+        border: 1px solid #d84727;
+        font-size: 39px;
+      }
+      .btnCart {
+        cursor: pointer;
+        font-family: "Taviraj";
+        font-style: normal;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 24px;
+        /* identical to box height, or 150% */
+        letter-spacing: 0.02em;
+        color: #ffffff;
+        background: #d84727;
+        padding: 8px 36px;
+        border: none;
+      }
+    }
+  }
+  @include tablet {
+    width: $primary-width-tablet;
+    .top {
+      width: $primary-width-tablet;
+    }
+    .bottom {
+      width: $primary-width-tablet;
+      .image {
+        img {
+          width: $primary-img-width-tablet;
+          height: $primary-img-width-tablet;
+        }
+      }
+    }
+  }
+  @include mobile {
+    width: $primary-width-mobile;
+    height: 290px;
+    .top {
+      width: $primary-width-mobile;
+    }
+    .bottom {
+      width: $primary-width-mobile;
+      height: 175px;
+      .image {
+        img {
+          width: $primary-img-width-mobile;
+          height: $primary-img-width-mobile;
+        }
+      }
+      .content {
+        padding: 50px 0px 0px 0px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        .title {
+          padding: 0 8px;
+          text-align: center;
+          font-size: 18px;
+          height: fit-content;
+          width: $primary-width-mobile;
+        }
+        .saleOff {
+          display: none;
+        }
+        .oldPrice {
+          display: none;
+        }
+        .newPrice {
+          font-size: 18px;
+        }
+      }
+      .btn {
+        svg {
+          font-size: 25px;
+        }
+        .btnCart {
+          font-size: 12px;
+          padding: 1px 8px;
+        }
+      }
+    }
+  }
+}
+
+:global {
+  .ant-popover-inner-content {
+    display: none;
+  }
+}

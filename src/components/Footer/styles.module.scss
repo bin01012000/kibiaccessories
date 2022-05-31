@@ -1,0 +1,136 @@
+@use "../../sass/mixins" as *;
+p {
+  padding: 0;
+  margin: 0;
+}
+
+.container {
+  max-width: 100%;
+  @include flex();
+  background: #d84727;
+  .footer {
+    padding: 51px 165px 75px 165px;
+    flex-direction: row;
+    display: flex;
+    width: calc(1440px + 32px);
+    &__address {
+      display: flex;
+      flex-direction: column;
+      flex-basis: 25%;
+      &__logo {
+        margin-bottom: 11px;
+        @include flex(center, flex-start);
+      }
+      &__title {
+        margin-top: 16px;
+        color: #ffffff;
+        @include font(normal, 500, 20px, 34px, 0.02em);
+      }
+      &__desc {
+        margin-top: 2px;
+
+        color: #ffffff;
+        @include font(normal, 400, 16px, 27px, 0.03em);
+      }
+    }
+    &__getintouch {
+      display: flex;
+      flex-direction: column;
+      flex-basis: 25%;
+      &__title {
+        color: #ffffff;
+        @include font(normal, 600, 24px, 41px, 0.02em);
+      }
+      &__phone {
+        margin-top: 27px;
+        @include flex(center, flex-start);
+        column-gap: 36px;
+        &__title {
+          color: #ffffff;
+          @include font(normal, 500, 20px, 34px, 0.02em);
+          max-width: 97px;
+          min-width: 97px;
+        }
+        &__desc {
+          color: #ffffff;
+          @include font(normal, 400, 16px, 32px, 0.03em);
+        }
+      }
+      &__phone:not(:first-child) {
+        margin-top: 8px;
+      }
+      &__icon {
+        display: flex;
+        flex-direction: row;
+        column-gap: 25px;
+        .facebook,
+        .instagram,
+        .twitter,
+        .youtube {
+          margin-top: 10px;
+          @include flex();
+          background: #dadada;
+          padding: 4px 6px;
+          border-radius: 50%;
+        }
+      }
+    }
+    &__useful {
+      display: flex;
+      flex-direction: column;
+      flex-basis: 25%;
+      margin-left: 60px;
+      &__title {
+        color: #ffffff;
+        @include font(normal, 600, 24px, 41px, 0.02em);
+      }
+      &__link {
+        margin-top: 27px;
+        display: flex;
+        flex-direction: column;
+        &__item {
+          color: #ffffff;
+          @include font(normal, 400, 16px, 32px, 0.03em);
+        }
+      }
+    }
+    &__campaign {
+      display: flex;
+      flex-direction: column;
+      flex-basis: 25%;
+      &__title {
+        color: #ffffff;
+        @include font(normal, 600, 24px, 41px, 0.02em);
+      }
+      &__link {
+        margin-top: 27px;
+        display: flex;
+        flex-direction: column;
+        &__item {
+          color: #ffffff;
+          @include font(normal, 400, 16px, 32px, 0.03em);
+        }
+      }
+    }
+  }
+  @include tablet {
+    .footer {
+      width: unset;
+      padding: unset;
+    }
+  }
+}
+
+.line {
+  background: #ffffff;
+  border: 1px solid #ffffff;
+  max-width: 60px;
+}
+
+.top__all {
+  height: 41px;
+}
+
+.mt27 {
+  margin-top: 27px !important;
+}

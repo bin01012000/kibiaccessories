@@ -1,0 +1,87 @@
+@use "../../../sass/mixins" as *;
+
+.box__product {
+  max-width: 1110px;
+  height: 100%;
+  p {
+    margin: 0;
+    padding: 0;
+  }
+  .box__product__image {
+    height: 287px;
+
+    img {
+      height: 287px;
+      @include img();
+      object-fit: cover;
+    }
+  }
+
+  .box__product__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+
+    .box__product__title {
+      font-weight: 500;
+      font-size: 20px;
+      line-height: 32px;
+      color: #333333;
+    }
+    .box__product__voucher {
+      margin-top: 2px;
+      font-weight: 400;
+      font-size: 13px;
+      line-height: 24px;
+      color: #777777;
+    }
+
+    .box__product__oldprice {
+      margin-top: 4px;
+      @include font(normal, 400, 13px, 24px);
+      color: #777777;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .line {
+        position: absolute;
+        width: 85px;
+        border-top: 2px solid #d93f3f;
+        border-bottom: none;
+      }
+    }
+
+    .box__product__price {
+      font-weight: 400;
+      font-size: 20px;
+      line-height: 32px;
+      color: #333333;
+    }
+
+    .btn {
+      display: flex;
+      justify-content: center;
+      gap: 0 5px;
+      margin-top: 10px;
+      flex-direction: row-reverse;
+
+      svg {
+        cursor: pointer;
+        border: 1px solid #d84727;
+        font-size: 20px;
+        width: 42px;
+        height: 42px;
+      }
+      .btnCart {
+        cursor: pointer;
+        color: #ffffff;
+        background: #d84727;
+        padding: 9px 60px;
+        border: none;
+        @include font(normal, 400, 16px, 24px, 0.02em);
+      }
+    }
+  }
+}

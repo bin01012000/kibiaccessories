@@ -1,0 +1,53 @@
+@use "../../../sass/mixins" as *;
+.mothlyDealContainer {
+  width: 1110px;
+  height: 585px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .title {
+    font-family: "Taviraj";
+    font-style: normal;
+    font-weight: 500;
+    font-size: 36px;
+    line-height: 40px;
+    /* identical to box height, or 111% */
+    letter-spacing: 0.02em;
+    color: #333333;
+    margin-bottom: 20px;
+    position: relative;
+    &::after {
+      content: " ";
+      height: 2px;
+      width: 180px;
+      background-color: #000;
+      position: absolute;
+      top: 40px;
+      left: 0;
+    }
+  }
+  .listItem {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  @include tablet {
+    width: 1024px;
+
+    .listItem {
+      gap: 0 15px;
+    }
+  }
+  @include mobile {
+    width: 100vw;
+    height: 100%;
+    .title {
+      margin-top: 80px;
+    }
+    .listItem {
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+  }
+}

@@ -1,0 +1,80 @@
+@use "../../sass/mixins" as *;
+.home {
+  max-width: 100vw;
+  min-height: 100vh;
+  background:  #F7F6F4;
+  overflow: hidden;
+
+  .carousel {
+    height: 80vh;
+  }
+  .categories {
+    height: 60vh;
+    display: flex;
+    justify-content: center;
+  }
+  .monthlyDeal {
+    height: 90vh;
+    display: flex;
+    justify-content: center;
+  }
+  .recentsNew {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .featured {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .testimonial {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .instagram {
+    height: 90vh;
+    display: flex;
+    justify-content: center;
+  }
+
+  @include tablet {
+    .carousel,
+    .categories,
+    .monthlyDeal,
+    .recentsNew,
+    .featured,
+    .testimonial,
+    .instagram,
+    .monthlyDeal {
+      min-height: 100vh;
+      margin-bottom: 5rem;
+    }
+    max-width: 1024px;
+    padding: 0 15px;
+    overflow: hidden;
+  }
+  @include mobile {
+    .carousel,
+    .categories,
+    .monthlyDeal,
+    .recentsNew,
+    .featured,
+    .testimonial,
+    .instagram,
+    .monthlyDeal {
+      min-height: 100vh;
+    }
+    .recentsNew {
+      margin-top: 50px;
+      min-height: 100vh;
+    }
+    .featured {
+      margin-top: 10rem;
+    }
+  }
+}
