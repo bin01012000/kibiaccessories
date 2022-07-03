@@ -1,41 +1,80 @@
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { useClickOutside } from "@mantine/hooks";
-import { Button, Input, Space } from "antd";
-import "antd/dist/antd.css";
+import {
+  Button,
+  Dropdown,
+  Input,
+  Menu,
+  message,
+  notification,
+  Space,
+} from "antd";
+import "antd/dist/antd.min.css";
+import Cookies from "js-cookie";
 import { Handbag, User } from "phosphor-react";
-import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { getAllProductCart } from "../../api/Cart";
+import { getAllCategory } from "../../api/Category";
 import logo from "../../assets/header/image 5.svg";
+import { setAuthToken } from "../../services/jwt-axios";
+import formatName from "../../utils/formatName";
 import { Cart } from "./Cart";
 import NumItem from "./NumItemCard";
 import classes from "./styles.module.scss";
-
 const { Search } = Input;
-const navItem = [
-  {
-    display: "Watches",
-    link: "/",
-  },
-  {
-    display: "Eyewear",
-    link: "/",
-  },
-  {
-    display: "Accessories ",
-    link: "/",
-  },
-  {
-    display: "News",
-    link: "/",
-  },
-];
-const onSearch = (value) => console.log(value);
 
 const Header = () => {
+  const user = useSelector((state) => state.user);
+  const cart = useSelector((state) => state.cart);
+  const handleSignOut = () => {
+    Cookies.remove("token");
+    localStorage.removeItem("persist:root");
+  };
+  const menu = (
+    <Menu>
+      <Menu.Item>
+        <p className={classes.link_to_profile}>Your Profile</p>
+      </Menu.Item>
+      <Menu.Item>
+        <p className={classes.sign_out} onClick={handleSignOut}>
+          Sign out
+        </p>
+      </Menu.Item>
+    </Menu>
+  );
+  if (user.currentUser) {
+    if (
+      user.currentUser.accessToken !== "" &&
+      user.currentUser.accessToken != null
+    ) {
+      setAuthToken(user.currentUser.accessToken);
+      getAllProductCart(user.currentUser.username);
+    }
+  }
+
+  const openNotificationWithIcon = (type) => {
+    notification[type]({
+      message: "Error",
+      description: "Can't fill in special character",
+    });
+  };
+
+  let navigate = useNavigate();
+  const onSearch = (value) => {
+    var regex = /^[a-zA-Z]+$/;
+    if (value && regex.test(value)) {
+      navigate(`/search/${value}`);
+    } else {
+      openNotificationWithIcon("warning");
+    }
+  };
+
+  const [category, setCategory] = useState({});
   const [collapsed, setCollapsed] = useState(false);
   const menuRef = useRef(null);
   const headerRef = useRef(null);
-  const [qty, setQty] = useState(1);
   const [visible, setVisible] = useState(false);
   const ref = useClickOutside(() => setVisible(false));
 
@@ -44,42 +83,18 @@ const Header = () => {
     menuRef.current.classList.toggle(classes.active);
   };
 
-  const upQty = () => {
-    setQty(qty + 1);
-  };
-
-  const downQty = () => {
-    if (qty === 1) {
-      return;
-    } else {
-      setQty(qty - 1);
-    }
-  };
-
+  // console.log(user);
   useEffect(() => {
-    window.addEventListener("scroll", () => {
-      if (
-        document.body.scrollTop > 50 ||
-        document.documentElement.scrollTop > 50
-      ) {
-        headerRef.current.classList.add(classes.shrink);
-      } else {
-        headerRef.current.classList.remove(classes.shrink);
+    getAllCategory().then((res) => {
+      if (res) {
+        setCategory(res);
       }
-      return () => {
-        window.removeEventListener("scroll");
-      };
     });
-  }, []);
+  }, [cart]);
+  // console.log(user);
   return (
     <div className={classes.container}>
-      <Cart
-        visible={visible}
-        aref={ref}
-        downQty={downQty}
-        qty={qty}
-        upQty={upQty}
-      />
+      <Cart visible={visible} aref={ref} />
       <div className={classes.headerContainer} ref={headerRef}>
         <div className={classes.top}>
           <Link to={"/"} className={classes.logo}>
@@ -88,21 +103,41 @@ const Header = () => {
           <Space direction="vertical" align="start">
             <Search
               placeholder="Search products, accessory, etc..."
+              required={true}
               onSearch={onSearch}
               style={{ width: 500, textAlign: "center" }}
             />
           </Space>
           <div className={classes.authentication}>
-            <Link to={"/login"} className={classes.login}>
-              <User size={32} color="#000" weight="thin" />
-              <div className={classes.loginText}>Log In</div>
-            </Link>
+            {/* {!user.accessToken ? ( */}
+            {user.currentUser ? (
+              <Link to={"/myaccount/1"} className={classes.login}>
+                <Dropdown overlay={menu} placement="bottom" arrow>
+                  <User size={32} color="#000" weight="thin" />
+                </Dropdown>
+                <div className={classes.loginText}>
+                  {formatName(user.currentUser.name)}
+                </div>
+              </Link>
+            ) : (
+              <Link to={"/login"} className={classes.login}>
+                <User size={32} color="#000" weight="thin" />
+                <div className={classes.loginText}>Log In</div>
+              </Link>
+            )}
+
             <div
               className={classes.shopingCart}
-              onClick={() => setVisible(true)}
+              onClick={() => {
+                if (user.currentUser) {
+                  setVisible(true);
+                } else {
+                  message.error("Please Sign In");
+                }
+              }}
             >
               <Handbag size={25} color="#000" weight="thin" />
-              <NumItem item={5} />
+              <NumItem item={cart.numberCart ?? 0} />
             </div>
           </div>
         </div>
@@ -110,13 +145,20 @@ const Header = () => {
         <div className={classes.bottom}>
           <div className={classes.navListContainer}>
             <div className={classes.navList}>
-              {navItem.map((item, index) => {
+              {category.categories?.map((item, index) => {
                 return (
-                  <Link to={item.link} key={index} className={classes.navItem}>
-                    {item.display}
+                  <Link
+                    to={`/viewall/${item._id}`}
+                    key={index}
+                    className={classes.navItem}
+                  >
+                    {item.category}
                   </Link>
                 );
               })}
+              <Link to={`/blog`} className={classes.navItem}>
+                Blog
+              </Link>
             </div>
           </div>
         </div>
@@ -136,7 +178,9 @@ const Header = () => {
             <div className={classes.authentication}>
               <div className={classes.login}>
                 <User size={32} color="#000" weight="thin" />
-                <div className={classes.loginText}>Log In</div>
+                <div className={classes.loginText}>
+                  {user.currentUser ? user.currentUser.name : "Log In"}
+                </div>
               </div>
               <div
                 className={classes.shopingCart}
@@ -149,14 +193,14 @@ const Header = () => {
           <div className={classes.bottom}>
             <div className={classes.navListContainer}>
               <div className={classes.navList}>
-                {navItem.map((item, index) => {
+                {category.categories?.map((item, index) => {
                   return (
                     <Link
-                      to={item.link}
+                      to={`/viewall/${item._id}`}
                       key={index}
                       className={classes.navItem}
                     >
-                      {item.display}
+                      {item.category}
                     </Link>
                   );
                 })}
@@ -222,10 +266,14 @@ const Header = () => {
       <div className={classes.menuMobile} ref={menuRef}>
         <div className={classes.navListContainer}>
           <div className={classes.navList}>
-            {navItem.map((item, index) => {
+            {category.categories?.map((item, index) => {
               return (
-                <Link to={item.link} key={index} className={classes.navItem}>
-                  {item.display}
+                <Link
+                  to={`/viewall/${item._id}`}
+                  key={index}
+                  className={classes.navItem}
+                >
+                  {item.category}
                 </Link>
               );
             })}

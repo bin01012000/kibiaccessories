@@ -1,0 +1,129 @@
+@use "../../../sass/mixins" as *;
+.container {
+  margin-top: 76px !important;
+  max-width: 1472px;
+  width: 100%;
+
+  padding: 0 165px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+
+  :global {
+    .ant-form-item {
+      margin: 0;
+    }
+
+    .ant-rate {
+      font-size: 13px;
+      margin-left: 15px !important;
+    }
+
+    .react-input-emoji--button {
+      position: absolute;
+      right: 0;
+      top: 15px;
+      z-index: 998;
+    }
+    .react-input-emoji--button__show svg {
+      fill: #d84727;
+    }
+  }
+  .title {
+    width: 100%;
+    @include font(normal, 500, 36px, 40px, 0.02em);
+    color: #333333;
+  }
+  .line {
+    margin-top: 8px;
+    width: 128px;
+    border-bottom: 2px solid #000000;
+    border-top: none;
+  }
+
+  .box_comment {
+    margin-top: 40px;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: row;
+    column-gap: 10px;
+    .avatar {
+      margin-top: 2px;
+      max-width: 40px;
+      max-height: 40px;
+      min-width: 40px;
+      min-height: 40px;
+      img {
+        max-width: 40px;
+        max-height: 40px;
+        min-width: 40px;
+        min-height: 40px;
+        border-radius: 50%;
+      }
+    }
+
+    .frame_comment {
+      width: 100%;
+
+      .input_comment {
+        border-radius: 20px;
+        background-color: #f0f2f5;
+        border: none;
+      }
+    }
+  }
+  .box_rs_comment {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    column-gap: 20px;
+    .avatar {
+      margin-top: 2px;
+      max-width: 45px;
+      max-height: 45px;
+      min-width: 45px;
+      min-height: 45px;
+      img {
+        max-width: 45px;
+        max-height: 45px;
+        min-width: 45px;
+        min-height: 45px;
+        border-radius: 50%;
+      }
+    }
+
+    .frame_comment {
+      width: 100%;
+      .delete {
+        color: #d84727;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+      :global {
+        .ant-rate {
+          margin-left: 0 !important;
+        }
+      }
+      .fullname {
+        font-size: 17px;
+        font-weight: 600;
+      }
+
+      .comment {
+        margin-top: 10px;
+        font-size: 15px;
+      }
+    }
+  }
+
+  .see_more {
+    margin-top: 40px;
+    color: #d84727;
+    font-size: 16px;
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

@@ -1,6 +1,6 @@
-import { Form as FormAnt, Input, message } from "antd";
+import { Form as FormAnt, Input, message, Modal } from "antd";
 import { Field, Form, Formik } from "formik";
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../../redux/apiCalls";
@@ -9,12 +9,124 @@ import { loginSchema } from "./validation";
 import classes from "./styles.module.scss";
 import Register from "../Register";
 import { loginSuccess } from "../../redux/userRedux";
+import { useGoogleLogin } from "@react-oauth/google";
+import FacebookLogin from "react-facebook-login/dist/facebook-login-render-props";
+import { googleInfo, socialSignIn, updateForgotPassword } from "../../api/User";
+import ForgotPassword from "./ForgotPassword";
+import { useLocation, useSearchParams } from "react-router-dom";
+import emailjs from "@emailjs/browser";
+import CryptoJS from "crypto-js";
+
 const Login = () => {
   const navigate = useNavigate();
+  const [isModalVisible, setIsModalVisible] = React.useState(false);
   const [active, setActive] = React.useState(false);
   const [wrongCredentials, setWrongCredential] = React.useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const search = useLocation().search;
+  const query = new URLSearchParams(search);
+  const email = new URLSearchParams(search).get("email");
+  const prv = new URLSearchParams(search).get("prv");
+  const ps = new URLSearchParams(search).get("ps");
+  useEffect(() => {
+    if (prv != null && prv != undefined) {
+      var tempprv = prv.replaceAll(" ", "+");
+      var hashedPassword = CryptoJS.AES.decrypt(
+        tempprv,
+        `${process.env.REACT_APP_PRIVATE_KEY}`
+      );
+      var OriginalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
+    } else {
+      var OriginalPassword = "";
+    }
+
+    if (query.has("email") && OriginalPassword === email && query.has("ps")) {
+      updateForgotPassword(email, ps).then((res) => {
+        if (res.status === 200) {
+          emailjs
+            .send(
+              "service_3fco6q6",
+              "template_t9ihe46",
+              {
+                to_name: email,
+                from_name: "bin01012000@gmail.com",
+                message: ` <p> New password is: ${ps} </p>`,
+              },
+              "v3GcHX1OV7AjPKEdx"
+            )
+            .then(
+              (res) => {
+                if (res.status === 200) {
+                  message.success("New password sent to your email");
+                }
+              },
+              (error) => {
+                console.log(error.text);
+              }
+            );
+        }
+      });
+    }
+    setSearchParams("");
+  }, []);
 
   const dispatch = useDispatch();
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
+  const responseFacebook = (res) => {
+    if (res) {
+      console.log(res);
+      setWrongCredential(false);
+      socialSignIn(res.email, res.name, res.picture.data.url).then((value) => {
+        // console.log(res);
+        message.success("Login success");
+        const obj = {
+          username: res.email,
+          email: res.email,
+          name: res.name,
+          avatar: res.picture.data.url,
+          accessToken: value.data.accessToken,
+        };
+        dispatch(loginSuccess(obj));
+        navigate("/");
+      });
+    }
+  };
+  const handleLoginGoogle = useGoogleLogin({
+    onSuccess: (res) => {
+      setWrongCredential(false);
+
+      googleInfo(res.access_token).then((info) => {
+        console.log(info);
+        socialSignIn(info.data.email, info.data.name, info.data.picture).then(
+          (res) => {
+            message.success("Login success");
+            const obj = {
+              username: info.data.email,
+              email: info.data.email,
+              name: info.data.name,
+              avatar: info.data.picture,
+              accessToken: res.data.accessToken,
+            };
+            dispatch(loginSuccess(obj));
+            navigate("/");
+          }
+        );
+      });
+    },
+    onError: (res) => console.log(res),
+  });
 
   const handleClickSU = () => {
     setActive(true);
@@ -26,6 +138,14 @@ const Login = () => {
 
   return (
     <div className={styles.backgroundContainer}>
+      <Modal
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        className={styles.form_forgot}
+      >
+        <ForgotPassword />
+      </Modal>
       <div
         className={`${styles.container} ${
           active === true ? styles.right_panel_active : ""
@@ -49,6 +169,7 @@ const Login = () => {
                   message.success("Login success");
                   dispatch(loginSuccess(res));
                   navigate("/");
+                  // console.log(res);
                 })
                 .catch(() => {
                   setWrongCredential(true);
@@ -60,11 +181,27 @@ const Login = () => {
                 <Form>
                   <h1>Sign in</h1>
                   <div className={styles.social_container}>
+                    <FacebookLogin
+                      appId="753923969369724"
+                      fields="name,email,picture"
+                      callback={responseFacebook}
+                      render={(renderProps) => (
+                        <Link
+                          to="#"
+                          className={styles.social}
+                          onClick={renderProps.onClick}
+                        >
+                          <box-icon type="logo" name="facebook"></box-icon>
+                        </Link>
+                      )}
+                    />
+
                     <Link to="#" className={styles.social}>
-                      <box-icon type="logo" name="facebook"></box-icon>
-                    </Link>
-                    <Link to="#" className={styles.social}>
-                      <box-icon name="google" type="logo"></box-icon>
+                      <box-icon
+                        name="google"
+                        type="logo"
+                        onClick={() => handleLoginGoogle()}
+                      ></box-icon>
                     </Link>
                   </div>
                   <span>or use your account</span>
@@ -115,7 +252,14 @@ const Login = () => {
                     </Field>
                   </FormAnt.Item>
 
-                  <Link to="#">Forgot your password?</Link>
+                  <Link
+                    to="#"
+                    onClick={() => {
+                      setIsModalVisible(true);
+                    }}
+                  >
+                    Forgot your password?
+                  </Link>
                   <button type="submit">Sign In</button>
                 </Form>
               );

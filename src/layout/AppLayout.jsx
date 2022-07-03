@@ -3,13 +3,22 @@ import { Route, Routes } from "react-router-dom";
 import AppSuspense from "../components/AppSuspense/index";
 import { CompleteProfile } from "../pages/CompleteProfile";
 import ViewAll from "../pages/ViewAll";
-import { Detail, Home, Login, Payment } from "../routes/index";
+import {
+  Detail,
+  Home,
+  Login,
+  Payment,
+  Page404,
+  UserProfile,
+  Search,
+  Blog,
+  DetailBlog,
+  ViewAllBlog,
+} from "../routes/index";
 import RequireAuth from "./RequireAuth";
 import UnRequireAuth from "./UnRequireAuth";
 
 const AppLayout = () => {
-  const currentURL = window.location.pathname;
-  console.log(currentURL);
   return (
     <AppSuspense>
       <React.Fragment>
@@ -25,9 +34,17 @@ const AppLayout = () => {
           <Route
             path="/detail"
             element={
-              <RequireAuth>
+              <UnRequireAuth>
                 <Detail />
-              </RequireAuth>
+              </UnRequireAuth>
+            }
+          />
+          <Route
+            path="/detail/:id"
+            element={
+              <UnRequireAuth>
+                <Detail />
+              </UnRequireAuth>
             }
           />
           <Route
@@ -39,7 +56,7 @@ const AppLayout = () => {
             }
           />
           <Route
-            path="/confirmation"
+            path="/confirmation/:id"
             element={
               <RequireAuth>
                 <Payment />
@@ -49,20 +66,84 @@ const AppLayout = () => {
           <Route
             path="/viewall"
             element={
-              <RequireAuth>
+              <UnRequireAuth>
                 <ViewAll />
-              </RequireAuth>
+              </UnRequireAuth>
+            }
+          />
+          <Route
+            path="/viewall/:idCate"
+            element={
+              <UnRequireAuth>
+                <ViewAll />
+              </UnRequireAuth>
             }
           />
           <Route
             path="/completeprofile"
             element={
-              <RequireAuth>
+              <UnRequireAuth>
                 <CompleteProfile />
+              </UnRequireAuth>
+            }
+          />
+          <Route
+            path="/myaccount"
+            element={
+              <RequireAuth>
+                <UserProfile />
               </RequireAuth>
             }
           />
+          <Route
+            path="/myaccount/:active"
+            element={
+              <RequireAuth>
+                <UserProfile />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/search/:kw"
+            element={
+              <UnRequireAuth>
+                <Search />
+              </UnRequireAuth>
+            }
+          />
+          <Route
+            path="*"
+            element={
+              <UnRequireAuth>
+                <Page404 />
+              </UnRequireAuth>
+            }
+          />
           <Route path="/login" element={<Login />}></Route>
+          <Route
+            path="/blog"
+            element={
+              <UnRequireAuth>
+                <Blog />
+              </UnRequireAuth>
+            }
+          ></Route>
+          <Route
+            path="/detailblog"
+            element={
+              <UnRequireAuth>
+                <DetailBlog />
+              </UnRequireAuth>
+            }
+          ></Route>
+          <Route
+            path="/viewallblog"
+            element={
+              <UnRequireAuth>
+                <ViewAllBlog />
+              </UnRequireAuth>
+            }
+          ></Route>
         </Routes>
       </React.Fragment>
     </AppSuspense>

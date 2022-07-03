@@ -1,0 +1,28 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 50px;
+  .text {
+    font-size: 25px !important;
+  }
+
+  .clear_history {
+    color: #d84727;
+    cursor: pointer;
+    font-size: 20px;
+    padding-left: 30px;
+    padding-top: 15px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  .list {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+    column-gap: 30px;
+    flex-wrap: wrap;
+    row-gap: 30px;
+  }
+}

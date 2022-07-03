@@ -1,14 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 import Cookies from "js-cookie";
 import { setAuthToken } from "../services/jwt-axios";
-const token =
-  typeof Cookies.get("token") !== "undefined" ? Cookies.get("token") : "";
+
 const userSlice = createSlice({
   name: "user",
   initialState: {
     currentUser: null,
     isFetching: false,
-    accessToken: token,
+    accessToken: "",
   },
 
   reducers: {
@@ -18,10 +17,23 @@ const userSlice = createSlice({
     loginSuccess: (state, action) => {
       state.isFetching = false;
       state.currentUser = action.payload;
-      setAuthToken(action.payload.accessToken);
+      state.accessToken = action.payload.accessToken;
+      if (action.payload.accessToken) {
+        setAuthToken(action.payload.accessToken);
+      } else {
+        setAuthToken(action.payload.access_token);
+      }
+    },
+    updateStart: (state) => {
+      state.isFetching = true;
+    },
+    updateSuccess: (state, action) => {
+      state.isFetching = false;
+      state.currentUser = action.payload.user;
     },
   },
 });
 
-export const { loginStart, loginSuccess } = userSlice.actions;
+export const { loginStart, loginSuccess, updateStart, updateSuccess } =
+  userSlice.actions;
 export default userSlice.reducer;

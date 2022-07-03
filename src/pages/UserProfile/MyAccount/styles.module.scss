@@ -1,0 +1,218 @@
+@use "../../../sass/mixins" as *;
+
+.wrapInformation {
+  top: 35% !important;
+  :global {
+    .ant-modal-content {
+      width: fit-content;
+    }
+  }
+}
+
+.all {
+  .box {
+    margin-bottom: 20px;
+
+    .title {
+      text-align: center;
+
+      .tde {
+        font-size: 16px;
+        line-height: 20px;
+        text-transform: uppercase;
+        display: flex;
+        margin-left: 70px;
+
+        span {
+          &::before,
+          &::after {
+            content: "";
+            background: url(https://image.ibb.co/d21QDA/bgh-nz1-l.png);
+            width: 87px;
+            height: 50px;
+            position: absolute;
+            top: 19px;
+            z-index: -1;
+          }
+
+          &::before {
+            left: -44px;
+          }
+
+          &::after {
+            transform: rotateY(180deg);
+            right: -44px !important;
+          }
+
+          background: #d84727;
+          height: 50px;
+          line-height: 50px;
+          padding: 0px 20px;
+          color: white;
+          position: relative;
+          display: inline-block;
+          margin: 0;
+          z-index: 45;
+          border-radius: 10px 10px 0px 0px;
+          border: 1px solid #d84727;
+        }
+      }
+    }
+
+    :global {
+      .ant-form-item-label
+        > label.ant-form-item-required:not(.ant-form-item-required-mark-optional):before,
+      .ant-form-item-label > label:after {
+        display: none;
+      }
+
+      .ant-form-item {
+        margin: 0;
+        column-gap: 15px;
+      }
+      .ant-form-item-label {
+        text-align: unset;
+      }
+
+      .ant-input-affix-wrapper:not(.ant-input-affix-wrapper-disabled):hover,
+      .ant-input-affix-wrapper-focused,
+      .ant-picker-focused,
+      .ant-picker:hover,
+      .ant-select:not(.ant-select-disabled):hover .ant-select-selector,
+      .ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input)
+        .ant-select-selector {
+        border-color: #d84727;
+        box-shadow: 0 0 2px #d84727;
+      }
+      .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+        background-color: #d84727 !important;
+      }
+
+      // .ant-btn-primary {
+      //   color: transparent;
+      // }
+    }
+
+    .text {
+      font-size: 25px;
+    }
+
+    .form_info {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+
+      .text_info {
+        margin-top: 10px;
+        font-size: 20px;
+      }
+
+      .avatar_name {
+        display: flex;
+        align-items: center;
+      }
+
+      .input_name {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        row-gap: 15px;
+      }
+
+      .date_of_birth {
+        margin-top: 40px;
+      }
+
+      .gender {
+        margin-top: 20px;
+      }
+
+      .full_content_right {
+        margin-left: 50px;
+      }
+
+      .phone,
+      .email,
+      .password {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        flex: 1;
+
+        .title {
+          display: flex;
+          align-items: center;
+          column-gap: 15px;
+        }
+
+        .button_update {
+          display: flex;
+        }
+      }
+
+      .email {
+        margin-top: 15px;
+      }
+    }
+  }
+}
+.btnUpload {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #d84727;
+  color: #fff;
+  box-shadow: 0px 4px 40px rgba(58, 41, 106, 0.1);
+  border-radius: 5px;
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  margin-top: 10px;
+  .text {
+    font-size: 16px !important;
+    line-height: 22px;
+    /* identical to box height, or 183% */
+    text-align: center;
+    letter-spacing: 0.4px;
+    /* Gray 2 */
+    color: #4f4f4f;
+    margin-left: 4px;
+  }
+}
+.button_update {
+  background: transparent;
+  color: #d84727;
+  border: thin solid #d84727;
+  padding: 4px 20px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.button_saveinfo,
+.button_saveinfo:hover,
+.button_saveinfo:focus {
+  @include flex();
+  margin-top: 30px;
+  background-color: #d84727;
+  border: 1px solid #d84727;
+  border-radius: 7px;
+}
+
+.button_saveinfo span {
+  padding: 4px 15px;
+}
+
+:global {
+  .ant-upload.ant-upload-select.ant-upload-select-picture-card {
+    height: 48px;
+    width: 140px;
+    background-color: #fff;
+    border: none !important;
+  }
+  .ant-upload-picture-card-wrapper {
+    display: inline-block;
+    width: auto !important;
+  }
+}
