@@ -11,7 +11,7 @@ import {
 } from "antd";
 import "antd/dist/antd.min.css";
 import Cookies from "js-cookie";
-import { Handbag, User } from "phosphor-react";
+import { Handbag, Heart, SignOut, User, UserCircle } from "phosphor-react";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
@@ -23,24 +23,62 @@ import formatName from "../../utils/formatName";
 import { Cart } from "./Cart";
 import NumItem from "./NumItemCard";
 import classes from "./styles.module.scss";
+import placeholderAvatar from "../../assets/user_avatar.jpg";
 const { Search } = Input;
 
 const Header = () => {
+  let navigate2 = useNavigate();
   const user = useSelector((state) => state.user);
   const cart = useSelector((state) => state.cart);
   const handleSignOut = () => {
     Cookies.remove("token");
     localStorage.removeItem("persist:root");
+    navigate2("/login");
   };
   const menu = (
     <Menu>
       <Menu.Item>
-        <p className={classes.link_to_profile}>Your Profile</p>
+        <Link to={"/myaccount/1"} className={classes.box_profile}>
+          <div className={classes.avatar_menu}>
+            <img
+              src={
+                user.currentUser
+                  ? user.currentUser.avatar
+                    ? user.currentUser.avatar
+                    : placeholderAvatar
+                  : placeholderAvatar
+              }
+              alt=""
+            />
+          </div>
+          <p className={classes.name_avatar}>
+            {user.currentUser ? user.currentUser.name : ""}
+          </p>
+        </Link>
       </Menu.Item>
       <Menu.Item>
-        <p className={classes.sign_out} onClick={handleSignOut}>
-          Sign out
-        </p>
+        <Link to={"/myaccount/1"} className={classes.link_to_profile}>
+          <div className={classes.icon}>
+            <UserCircle size={24} className={classes.icon_box} />
+          </div>
+          Your Profile
+        </Link>
+      </Menu.Item>
+      <Menu.Item>
+        <Link className={classes.wish_list} to={"/myaccount/4"}>
+          <div className={classes.icon}>
+            <Heart size={24} className={classes.icon_box} />
+          </div>
+          Wish List
+        </Link>
+      </Menu.Item>
+      <Menu.Item>
+        <div className={classes.sign_out} onClick={handleSignOut}>
+          <div className={classes.icon}>
+            <SignOut size={24} className={classes.icon_box} />
+          </div>
+          Sign Out
+        </div>
       </Menu.Item>
     </Menu>
   );
@@ -83,7 +121,7 @@ const Header = () => {
     menuRef.current.classList.toggle(classes.active);
   };
 
-  // console.log(user);
+  //console.log(user);
   useEffect(() => {
     getAllCategory().then((res) => {
       if (res) {
@@ -91,10 +129,10 @@ const Header = () => {
       }
     });
   }, [cart]);
-  // console.log(user);
+  //console.log(user);
   return (
     <div className={classes.container}>
-      <Cart visible={visible} aref={ref} />
+      <Cart visible={visible} aref={ref} setVisible={setVisible} />
       <div className={classes.headerContainer} ref={headerRef}>
         <div className={classes.top}>
           <Link to={"/"} className={classes.logo}>
@@ -111,14 +149,20 @@ const Header = () => {
           <div className={classes.authentication}>
             {/* {!user.accessToken ? ( */}
             {user.currentUser ? (
-              <Link to={"/myaccount/1"} className={classes.login}>
-                <Dropdown overlay={menu} placement="bottom" arrow>
+              <Dropdown
+                overlay={menu}
+                placement="bottomLeft"
+                arrow
+                trigger={["click"]}
+                overlayClassName={classes.menu_header}
+              >
+                <div className={classes.login}>
                   <User size={32} color="#000" weight="thin" />
-                </Dropdown>
-                <div className={classes.loginText}>
-                  {formatName(user.currentUser.name)}
+                  <div className={classes.loginText}>
+                    {formatName(user.currentUser.name)}
+                  </div>
                 </div>
-              </Link>
+              </Dropdown>
             ) : (
               <Link to={"/login"} className={classes.login}>
                 <User size={32} color="#000" weight="thin" />

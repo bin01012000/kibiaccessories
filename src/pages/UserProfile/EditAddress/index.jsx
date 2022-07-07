@@ -1,5 +1,5 @@
-import { Button, Form, Form as FormAnt, Input, Select } from "antd";
-import { Field, Formik } from "formik";
+import { Button, Form as FormAnt, Input, Select } from "antd";
+import { Field, Formik, Form } from "formik";
 import { MapPinLine } from "phosphor-react";
 import { useEffect, useState } from "react";
 import { getDistrict, getProvince, getWard } from "../../../api/Shipping";
@@ -35,12 +35,13 @@ const EditAddress = (props) => {
   useEffect(() => {
     getWard(districtId).then((res) => {
       if (res) {
+        console.log(res);
         setWard(res.data.data);
-        setWardId(data.ward);
+        setWardId(res.data.data[0].WardCode);
       }
     });
-  }, [districtId, data]);
-  console.log("data:", data);
+  }, [districtId, data, provinceId]);
+  //console.log("data:", data);
   return (
     <div className={s.container}>
       <div className={s.form}>
@@ -56,7 +57,7 @@ const EditAddress = (props) => {
             props.handle(
               props.addressId,
               data._id,
-              values,
+              values.address,
               wardId,
               districtId,
               provinceId
@@ -99,7 +100,7 @@ const EditAddress = (props) => {
                   </Select>
 
                   <Select
-                    placeholder="Please choose your province"
+                    placeholder="Please choose your district"
                     style={{ width: 240 }}
                     onSelect={(value) => {
                       setDistrictId(value);
@@ -122,11 +123,14 @@ const EditAddress = (props) => {
                   </Select>
 
                   <Select
-                    placeholder="Please choose your province"
+                    placeholder="Please choose your ward"
                     style={{ width: 240 }}
                     defaultActiveFirstOption={true}
                     filterOption={false}
                     value={wardId}
+                    onSelect={(value) => {
+                      setWardId(value);
+                    }}
                     filterSort={(optionA, optionB) =>
                       optionA.children
                         .toLowerCase()

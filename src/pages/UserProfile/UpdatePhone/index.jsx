@@ -15,7 +15,6 @@ const UpdatePhone = (props) => {
   const [numotp, setNumOtp] = useState(0);
   const user = useSelector((state) => state.user);
   const [phone, setPhone] = useState(0);
-  const [expandForm, setExpandForm] = useState(false);
   const [showTime, setShowTime] = useState(true);
   const [start, setStart] = useState(false);
   const [seconds, setSeconds] = useState(30);
@@ -45,27 +44,31 @@ const UpdatePhone = (props) => {
 
   const handleSendOtp = (phoneIn) => {
     if (phoneIn.length >= 12) {
-      setExpandForm(true);
       generateRecaptcha();
       let appVerifier = window.recaptchaVerifier;
       setOtp(true);
       setStart(true);
+      console.log("appVerifier:", appVerifier);
       signInWithPhoneNumber(auth, phoneIn, appVerifier)
         .then((confimationResult) => {
+          console.log("confimationResult:", confimationResult);
           window.confimationResult = confimationResult;
         })
         .catch((error) => {
           console.log(error);
         });
-      console.log(window.confimationResult);
+      setSeconds(30);
+      //console.log(window.confimationResult);
     }
   };
   const verifyOtp = () => {
     if (numotp.length === 6) {
       let confimationResult = window.confimationResult;
+      console.log("confimationResult:", confimationResult);
       confimationResult
         .confirm(numotp)
         .then((rs) => {
+          console.log("rs:", rs);
           if (rs) {
             updatePhone(user.currentUser._id, phone)
               .then((res) => {
@@ -79,7 +82,7 @@ const UpdatePhone = (props) => {
           }
         })
         .catch((error) => {
-          console.log(error);
+          message.error("Wrong OTP");
         });
     } else {
       message.error("Wrong format OTP");
@@ -107,9 +110,9 @@ const UpdatePhone = (props) => {
               phone: "",
             }}
             onSubmit={(values) => {
-              console.log("values.phone:", values.phone);
+              //console.log("values.phone:", values.phone);
               setPhone(values.phone);
-              console.log(phone);
+              //console.log(phone);
               handleSendOtp(values.phone);
               setOtp(true);
             }}

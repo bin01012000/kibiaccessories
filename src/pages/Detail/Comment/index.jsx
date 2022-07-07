@@ -1,15 +1,14 @@
-import { Button, Form, Input, message } from "antd";
 import { FrownOutlined, MehOutlined, SmileOutlined } from "@ant-design/icons";
-import React, { useEffect, useState } from "react";
-import s from "./styles.module.scss";
+import { message, Rate } from "antd";
+import { useEffect, useState } from "react";
 import InputEmoji from "react-input-emoji";
-import { Rate } from "antd";
+import { useSelector } from "react-redux";
 import {
   createComment,
   deleteComment,
   getCommentByProduct,
 } from "../../../api/Comment";
-import { useSelector } from "react-redux";
+import s from "./styles.module.scss";
 
 const Comment = (props) => {
   const [rating, setRating] = useState(5);
@@ -29,19 +28,19 @@ const Comment = (props) => {
 
   useEffect(() => {
     getCommentByProduct(props.data.product._id, page).then((res) => {
-      console.log(res);
+      //console.log(res);
       setTotalPages(res.data.totalPages);
       setListComment((listComment) => [...listComment, ...res.data.comments]);
     });
-  }, [page]);
+  }, [page, props.data.product._id]);
 
   useEffect(() => {
     getCommentByProduct(props.data.product._id, 1).then((res) => {
-      console.log(res);
-      console.log(listComment);
+      //console.log(res);
+      //console.log(listComment);
       setListComment(res.data.comments);
     });
-  }, [reload]);
+  }, [reload, props.data.product._id]);
 
   const handleComment = () => {
     createComment(
@@ -52,7 +51,7 @@ const Comment = (props) => {
       user.currentUser.name,
       user.currentUser.avatar
     ).then((res) => {
-      console.log(res);
+      //console.log(res);
       if (res) {
         message.success("Comment successs");
       }
@@ -72,40 +71,42 @@ const Comment = (props) => {
     <div className={s.container}>
       <p className={s.title}>Comments</p>
       <hr className={s.line} />
-      <div className={s.box_comment}>
-        <div className={s.avatar}>
-          <img
-            src="https://scontent.fsgn5-6.fna.fbcdn.net/v/t1.6435-1/117913220_1830938403726260_3219453326340367531_n.jpg?stp=dst-jpg_p200x200&_nc_cat=108&ccb=1-7&_nc_sid=7206a8&_nc_ohc=Z4Ox8sBTvdEAX9up7gs&tn=LMYK3ndhwOI69WET&_nc_ht=scontent.fsgn5-6.fna&oh=00_AT99BPtz__aOWR-55OqN8v-TiZy17Cq78BRd6nhpqcRKLA&oe=62D890C5"
-            alt=""
-          />
-        </div>
-        <div className={s.frame_comment}>
-          <InputEmoji
-            onEnter={() => {
-              handleComment();
-              setContent("");
-            }}
-            cleanOnEnter
-            placeholder="Type a comment..."
-            onChange={(e) => {
-              setContent(e);
-            }}
-          />
+      {user.currentUser && (
+        <div className={s.box_comment}>
+          <div className={s.avatar}>
+            <img
+              src="https://scontent.fsgn5-6.fna.fbcdn.net/v/t1.6435-1/117913220_1830938403726260_3219453326340367531_n.jpg?stp=dst-jpg_p200x200&_nc_cat=108&ccb=1-7&_nc_sid=7206a8&_nc_ohc=Z4Ox8sBTvdEAX9up7gs&tn=LMYK3ndhwOI69WET&_nc_ht=scontent.fsgn5-6.fna&oh=00_AT99BPtz__aOWR-55OqN8v-TiZy17Cq78BRd6nhpqcRKLA&oe=62D890C5"
+              alt=""
+            />
+          </div>
+          <div className={s.frame_comment}>
+            <InputEmoji
+              onEnter={() => {
+                handleComment();
+                setContent("");
+              }}
+              cleanOnEnter
+              placeholder="Type a comment..."
+              onChange={(e) => {
+                setContent(e);
+              }}
+            />
 
-          <Rate
-            onChange={setRating}
-            defaultValue={rating}
-            allowHalf
-            character={({ index }) => customIcons[index + 1]}
-          />
+            <Rate
+              onChange={setRating}
+              defaultValue={rating}
+              allowHalf
+              character={({ index }) => customIcons[index + 1]}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {listComment?.map((item, index) => {
         return (
           <div className={s.box_rs_comment} key={index}>
             <div className={s.avatar}>
-              <img src={item?.avatar} alt={item?.name} />
+              <img src={item?.avatar} alt="" />
             </div>
             <div className={s.frame_comment}>
               <p className={s.fullname}>{item?.name}</p>

@@ -1,7 +1,12 @@
-import { message, Radio } from "antd";
+import { message, Radio, Modal } from "antd";
 import PropsType from "prop-types";
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import numberWithCommas from "../../../utils/numberWithCommas";
 import classes from "./styles.module.scss";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,22 +14,126 @@ import { getInfoService, getShippingCost } from "../../../api/Shipping";
 import StripeCheckout from "react-stripe-checkout";
 import avatarPlaceholder from "../../../assets/user_avatar.jpg";
 import { checkTypeItem } from "../../../utils/checkTypeItem";
-import { CreditCard, Truck } from "phosphor-react";
+import {
+  ArrowFatLinesRight,
+  CreditCard,
+  Tag,
+  Truck,
+  Wallet,
+} from "phosphor-react";
 import {
   doCheckoutByCard,
   doCheckoutByCod,
   doDeleteAllCart,
+  doGetSignature,
+  goLinkMomoPayment,
+  updateOrder,
 } from "../PaymentAPI";
 import { deleteAllCart } from "../../../redux/cartRedux";
+import { getVoucher } from "../../../api/Voucher";
+import ListVoucher from "../ListVoucher";
 
 const STRIPE_PK_KEY =
   "pk_test_51K0LBnFjydqiWgwtTtGT2ONJJuo4TAWczmDWero4QwWVw7p6n93JvDHkkDe70u1XVF5cT0kCsJQC59DJmQdBGPys00B3LSLWLk";
 
 const PaymentDetail = (props) => {
+  //-----------------------------------STATE MOMO-----------------------------------
+  const search = useLocation().search;
+  const query = new URLSearchParams(search);
+  const amount = new URLSearchParams(search).get("amount");
+  const extraData = new URLSearchParams(search).get("extraData");
+  const messageRs = new URLSearchParams(search).get("message");
+  const orderId = new URLSearchParams(search).get("orderId");
+  const orderInfo = new URLSearchParams(search).get("orderInfo");
+  const orderType = new URLSearchParams(search).get("orderType");
+  const partnerCode = new URLSearchParams(search).get("partnerCode");
+  const payType = new URLSearchParams(search).get("payType");
+  const requestId = new URLSearchParams(search).get("requestId");
+  const responseTime = new URLSearchParams(search).get("responseTime");
+  const resultCode = new URLSearchParams(search).get("resultCode");
+  const transId = new URLSearchParams(search).get("transId");
+  const signature = new URLSearchParams(search).get("signature");
+  // -----------------------------------END STATE MOMO-----------------------------------
+
+  //-------------------------------------START STATE VOUCHER---------------------------------------------
+
+  const [listVoucher, setListVoucher] = useState([]);
+  const [salePrice, setSalePrice] = useState(0);
+  const [idVoucher, setIdVoucher] = useState(0);
+  const [nameVoucher, setNameVoucher] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
+  useEffect(() => {
+    getVoucher(props.user.currentUser.username).then((res) => {
+      setListVoucher(res.data);
+    });
+  }, []);
+
+  //-------------------------------------END STATE VOUCHER---------------------------------------------
+  const [searchParams, setSearchParams] = useSearchParams();
   const [methodPayment, setMethodPayment] = useState(1);
   const [token, setToken] = useState();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const currentAddressName = props.addressSelected
+    ? props.addressSelected.address
+    : props.address[0].address;
+  const currentRecipientName = props.addressSelected
+    ? props.addressSelected.recipientName
+    : props.address[0].recipientName;
+  const currentRecipientPhone = props.addressSelected
+    ? props.addressSelected.recipientPhone
+    : props.address[0].recipientPhone;
+
+  const currentWard = props.addressSelected
+    ? props.addressSelected.ward
+    : props.address[0].ward;
+  const currentDistrict = props.addressSelected
+    ? props.addressSelected.district
+    : props.address[0].district;
+  const currentCity = props.addressSelected
+    ? props.addressSelected.city
+    : props.address[0].city;
+  const [serviceId, setServiceId] = useState(0);
+  const [shippingCost, setShippingCost] = useState(0);
+  useEffect(() => {
+    getInfoService(1450, currentDistrict).then((res) => {
+      if (res) {
+        setServiceId(res.data.data[0].service_id);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    getShippingCost(
+      serviceId,
+      props.cart.totalPrice,
+      null,
+      currentWard,
+      currentDistrict,
+      1450,
+      1000,
+      15,
+      15,
+      15
+    ).then((res) => {
+      if (res) {
+        setShippingCost(res.data.data.total);
+      }
+    });
+  }, [serviceId, props.cart.totalPrice, currentWard, currentDistrict]);
+  console.log("shippingCost:", shippingCost);
   useEffect(() => {
     if (token) {
       props.hanldeLoading(true);
@@ -39,10 +148,10 @@ const PaymentDetail = (props) => {
       };
       doCheckoutByCard(data)
         .then((res) => {
-          // console.log(res);
+          //console.log(res);
           message.success("Payment success");
           props.hanldeLoading(false);
-          console.log(res);
+          //console.log(res);
           // props.takeOrderDetailForConfirmation(res.newOrder._id);
 
           setTimeout(() => {
@@ -69,9 +178,9 @@ const PaymentDetail = (props) => {
     const data = {
       username: props.user.currentUser.username,
       email: props.user.currentUser.email,
-      address: props.address[0].address,
-      recipientName: props.address[0].recipientName,
-      recipientPhone: props.address[0].recipientPhone,
+      address: currentAddressName,
+      recipientName: currentRecipientName,
+      recipientPhone: currentRecipientPhone,
     };
     doCheckoutByCod(data)
       .then((res) => {
@@ -89,10 +198,104 @@ const PaymentDetail = (props) => {
         message.error("payment fail, sthing went worng");
       });
   };
-  // console.log(props);
+  //console.log(props);
+
+  //---------------------------------------MOMO-----------------------------------------------
+  useEffect(() => {
+    props.hanldeLoading(true);
+    if (
+      query.has("amount") &&
+      query.has("extraData") &&
+      query.has("message") &&
+      query.has("orderId") &&
+      query.has("orderInfo") &&
+      query.has("orderType") &&
+      query.has("partnerCode") &&
+      query.has("payType") &&
+      query.has("requestId") &&
+      query.has("responseTime") &&
+      query.has("resultCode") &&
+      query.has("transId")
+    ) {
+      doGetSignature(
+        amount,
+        extraData,
+        messageRs,
+        orderId,
+        orderInfo,
+        orderType,
+        partnerCode,
+        payType,
+        requestId,
+        responseTime,
+        resultCode,
+        transId
+      )
+        .then((res) => {
+          console.log("res:", res);
+          if (res.statusCode === 200) {
+            console.log("res.data:", res.data);
+            console.log("signature:", signature);
+            if (res.data === signature) {
+              const datasecond = {
+                amount: props.cart.totalPrice,
+                username: props.user.currentUser.username,
+                email: props.user.currentUser.email,
+                address: props.address[0].address,
+                recipientName: props.address[0].recipientName,
+                recipientPhone: props.address[0].recipientPhone,
+              };
+              updateOrder(datasecond)
+                .then((res) => {
+                  console.log("res:", res);
+                  if (res.statusCode === 200) {
+                    message.success("Payment success");
+                    props.hanldeLoading(false);
+                    setTimeout(() => {
+                      doDeleteAllCart({ username: datasecond.username });
+                      dispatch(deleteAllCart());
+                      navigate(`/confirmation/${res.data.newOrder._id}`);
+                    }, 1000);
+                  }
+                })
+                .finally(() => {
+                  props.hanldeLoading(false);
+                });
+            }
+          }
+        })
+        .finally(() => {
+          props.hanldeLoading(false);
+        });
+    }
+    props.hanldeLoading(false);
+  }, []);
+
+  const handleMomo = (amount) => {
+    goLinkMomoPayment(amount).then((res) => {
+      if (res.statusCode === 200) {
+        var win = window.open(res.data.payUrl);
+        win.focus();
+      }
+    });
+  };
+
+  console.log(nameVoucher);
+
+  //-------------------------------------END MOMO---------------------------------------------
+
+  //-------------------------------------START VOUCHER---------------------------------------------
 
   return (
     <>
+      <Modal visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+        <ListVoucher
+          listVoucher={listVoucher}
+          setIdVoucher={setIdVoucher}
+          setSalePrice={setSalePrice}
+          setNameVoucher={setNameVoucher}
+        />
+      </Modal>
       <div className={classes.paymentDetail}>
         <div className={classes.information}>
           <div className={classes.left}>
@@ -107,16 +310,26 @@ const PaymentDetail = (props) => {
                 </div>
                 <div className={classes.contentItem}>
                   <div className={classes.display}>Shipping Cost</div>
+
                   <div className={classes.price}>
-                    {numberWithCommas(props.shippingCost)} VND
+                    {numberWithCommas(shippingCost)} VND
                   </div>
                 </div>
-
+                <div
+                  className={classes.select_voucher}
+                  onClick={() => showModal()}
+                >
+                  <div className={classes.title_voucher}>
+                    <ArrowFatLinesRight size={20} weight="thin" /> Select
+                    Voucher <Tag size={20} weight="thin" />
+                  </div>
+                  <div className={classes.name_voucher}>{nameVoucher}</div>
+                </div>
                 <div className={classes.total}>
                   <div className={classes.display}>Grand Total</div>
                   <div className={classes.price}>
                     {numberWithCommas(
-                      props.cart.totalPrice + props.shippingCost
+                      props.cart.totalPrice + shippingCost - salePrice
                     )}{" "}
                     VND
                   </div>
@@ -147,6 +360,10 @@ const PaymentDetail = (props) => {
                   <Radio value={2} className={classes.paymentMethodItem}>
                     <Truck size={20} color="#000" />
                     Cash on delivery
+                  </Radio>
+                  <Radio value={3} className={classes.paymentMethodItem}>
+                    <Wallet size={20} color="#000" />
+                    Momo
                   </Radio>
                 </Radio.Group>
               </div>
@@ -195,21 +412,21 @@ const PaymentDetail = (props) => {
                 <div className={classes.contentItem}>
                   <div className={classes.display}>Shipping Address</div>
                   <div className={classes.shippingAddress}>
-                    {props.address[0].address}
+                    {currentAddressName}
                     {/* {paymentInfo.orderDetail.shippingAddress} */}
                   </div>
                 </div>
                 <div className={classes.contentItem}>
                   <div className={classes.display}>Recipient Name</div>
                   <div className={classes.shippingAddress}>
-                    {props.address[0].recipientName}
+                    {currentRecipientName}
                     {/* {paymentInfo.orderDetail.shippingAddress} */}
                   </div>
                 </div>
                 <div className={classes.contentItem}>
                   <div className={classes.display}>Recipient Phone</div>
                   <div className={classes.shippingAddress}>
-                    {props.address[0].recipientPhone}
+                    {currentRecipientPhone}
                     {/* {paymentInfo.orderDetail.shippingAddress} */}
                   </div>
                 </div>
@@ -219,25 +436,51 @@ const PaymentDetail = (props) => {
         </div>
 
         {methodPayment === 1 ? (
-          <StripeCheckout
-            name={props.user.currentUser.name}
-            image={avatarPlaceholder}
-            description={`Tổng của bạn là ${numberWithCommas(
-              props.cart.totalPrice
-            )} VND`}
-            amount={props.cart.totalPrice}
-            email={props.user.currentUser.email}
-            token={onToken}
-            stripeKey={STRIPE_PK_KEY}
-            currency="VND"
-          >
-            <div className={classes.btn}>
+          <div className={classes.btnContainer}>
+            <div className={classes.btn} onClick={() => navigate("/checkout")}>
+              <button>Select address</button>
+            </div>
+            <StripeCheckout
+              name={props.user.currentUser.name}
+              image={avatarPlaceholder}
+              description={`Tổng của bạn là ${numberWithCommas(
+                props.cart.totalPrice + props.shippingCost - salePrice
+              )} VND`}
+              amount={props.cart.totalPrice + props.shippingCost - salePrice}
+              email={props.user.currentUser.email}
+              token={onToken}
+              stripeKey={STRIPE_PK_KEY}
+              currency="VND"
+            >
+              <div className={classes.btn}>
+                <button>Proceed Payment</button>
+              </div>
+            </StripeCheckout>
+          </div>
+        ) : methodPayment === 2 ? (
+          <div className={classes.btnContainer}>
+            <div className={classes.btn} onClick={() => navigate("/checkout")}>
+              <button>Select address</button>
+            </div>
+            <div className={classes.btn} onClick={hanldeCheckoutCOD}>
               <button>Proceed Payment</button>
             </div>
-          </StripeCheckout>
+          </div>
         ) : (
-          <div className={classes.btn} onClick={hanldeCheckoutCOD}>
-            <button>Proceed Payment</button>
+          <div className={classes.btnContainer}>
+            <div className={classes.btn} onClick={() => navigate("/checkout")}>
+              <button>Select address</button>
+            </div>
+            <div
+              className={classes.btn}
+              onClick={() =>
+                handleMomo(
+                  props.cart.totalPrice + props.shippingCost - salePrice
+                )
+              }
+            >
+              <button>Proceed Payment</button>
+            </div>
           </div>
         )}
       </div>

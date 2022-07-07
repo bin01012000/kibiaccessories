@@ -17,15 +17,15 @@ export const Footer = () => {
   const getInTouch = [
     {
       title: "Phone",
-      desc: "022-20277564",
+      desc: "034-8098023",
     },
     {
       title: "Service Center",
-      desc: "0811-233-8899",
+      desc: "090-9090909",
     },
     {
       title: "Customer Service",
-      desc: "0811-235-9988",
+      desc: "098-7654321",
     },
   ];
 
