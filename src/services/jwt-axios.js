@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 const token =
   typeof Cookies.get("token") !== "undefined" ? Cookies.get("token") : "";
 
-const localUrl = "http://localhost:5000";
+const localUrl = "http://kibiaccessoriesapi.herokuapp.com/";
 //console.log(process.env.URL_API);
 const jwtAxios = axios.create({
   baseURL: localUrl, // YOUR_API_URL HERE

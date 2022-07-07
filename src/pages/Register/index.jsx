@@ -14,7 +14,6 @@ import { checkExist } from "../../api/User";
 const { Option } = Select;
 const Register = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [randomChar, setRandomChar] = useState("");
   const search = useLocation().search;
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
@@ -48,7 +47,6 @@ const Register = () => {
             Math.floor(Math.random() * charactersLength)
           );
         }
-        setRandomChar(result);
         var enc = CryptoJS.AES.encrypt(
           email,
           `${process.env.REACT_APP_PRIVATE_KEY}`

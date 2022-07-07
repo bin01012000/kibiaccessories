@@ -1,13 +1,12 @@
 import { Empty, message, Steps } from "antd";
 import "antd/dist/antd.css";
-import { CreditCard, HandGrabbing, Truck } from "phosphor-react";
+import { CreditCard, FastForward, HandGrabbing, Truck } from "phosphor-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import AppLoader from "../../../components/AppLoader";
 import OrderListItem from "./OrderListItem/OrderListItem";
-import { doGetListOrder, doGetListOrderByCustomer } from "./OrderManagementAPI";
+import { doGetListOrderByCustomer } from "./OrderManagementAPI";
 import classes from "./styles.module.scss";
-import { FastForward } from "phosphor-react";
 
 const { Step } = Steps;
 const STATUS = {
