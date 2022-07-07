@@ -130,6 +130,7 @@ const PaymentDetail = (props) => {
     ).then((res) => {
       if (res) {
         setShippingCost(res.data.data.total);
+        props.setShippingCost(res.data.data.total);
       }
     });
   }, [serviceId, props.cart.totalPrice, currentWard, currentDistrict]);
@@ -139,7 +140,7 @@ const PaymentDetail = (props) => {
       props.hanldeLoading(true);
       const data = {
         tokenId: token.id,
-        amount: props.cart.totalPrice,
+        amount: props.cart.totalPrice + shippingCost - salePrice,
         username: props.user.currentUser.username,
         email: props.user.currentUser.email,
         address: props.address[0].address,
@@ -238,7 +239,7 @@ const PaymentDetail = (props) => {
             console.log("signature:", signature);
             if (res.data === signature) {
               const datasecond = {
-                amount: props.cart.totalPrice,
+                amount: props.cart.totalPrice + shippingCost - salePrice,
                 username: props.user.currentUser.username,
                 email: props.user.currentUser.email,
                 address: props.address[0].address,

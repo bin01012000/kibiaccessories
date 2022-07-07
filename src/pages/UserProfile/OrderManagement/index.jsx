@@ -7,6 +7,7 @@ import AppLoader from "../../../components/AppLoader";
 import OrderListItem from "./OrderListItem/OrderListItem";
 import { doGetListOrder, doGetListOrderByCustomer } from "./OrderManagementAPI";
 import classes from "./styles.module.scss";
+import { FastForward } from "phosphor-react";
 
 const { Step } = Steps;
 const STATUS = {
@@ -113,7 +114,12 @@ const OrderManagement = () => {
                   fetchNext();
                 }}
               >
-                See more order
+                See more order{" "}
+                <FastForward
+                  size={20}
+                  weight="thin"
+                  style={{ marginLeft: "5px" }}
+                />
               </div>
             )}
           </>

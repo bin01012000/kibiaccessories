@@ -103,7 +103,7 @@ const UserProfile = () => {
         >
           <Voucher />
         </TabPane>
-        <TabPane
+        {/* <TabPane
           tab={
             <div className={s.tab}>
               <ShoppingBagOpen size={24} /> Purchased Product
@@ -112,7 +112,7 @@ const UserProfile = () => {
           key="8"
         >
           <OrderManagement />
-        </TabPane>
+        </TabPane> */}
       </Tabs>
     </div>
   );

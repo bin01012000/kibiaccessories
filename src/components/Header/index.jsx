@@ -164,10 +164,14 @@ const Header = () => {
                 </div>
               </Dropdown>
             ) : (
-              <Link to={"/login"} className={classes.login}>
+              <div
+                to={"/login"}
+                className={classes.login}
+                onClick={() => navigate2("/login")}
+              >
                 <User size={32} color="#000" weight="thin" />
                 <div className={classes.loginText}>Log In</div>
-              </Link>
+              </div>
             )}
 
             <div

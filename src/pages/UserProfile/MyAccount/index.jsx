@@ -311,7 +311,7 @@ const MyAccount = () => {
                           onChange={(value, dateString) =>
                             setFieldValue("dob", dateString)
                           }
-                          value={
+                          defaultValue={
                             user.currentUser?.dob
                               ? moment(user.currentUser?.dob, dateFormat)
                               : undefined
