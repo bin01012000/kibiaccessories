@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import AppSuspense from "../components/AppSuspense/index";
 import { CompleteProfile } from "../pages/CompleteProfile";
 import ViewAll from "../pages/ViewAll";
+import ViewAllByBrand from "../pages/ViewAll/viewallbybrand";
 import {
   Detail,
   Home,
@@ -14,6 +15,8 @@ import {
   Blog,
   DetailBlog,
   ViewAllBlog,
+  Client,
+  Page500,
 } from "../routes/index";
 import RequireAuth from "./RequireAuth";
 import UnRequireAuth from "./UnRequireAuth";
@@ -55,7 +58,7 @@ const AppLayout = () => {
               </RequireAuth>
             }
           />
-           <Route
+          <Route
             path="/checkout"
             element={
               <RequireAuth>
@@ -88,13 +91,22 @@ const AppLayout = () => {
             }
           />
           <Route
+            path="/viewallbybrand/:idBrandPr"
+            element={
+              <UnRequireAuth>
+                <ViewAllByBrand />
+              </UnRequireAuth>
+            }
+          />
+          <Route path="/500" element={<Page500 />} />
+          {/* <Route
             path="/completeprofile"
             element={
               <UnRequireAuth>
                 <CompleteProfile />
               </UnRequireAuth>
             }
-          />
+          /> */}
           <Route
             path="/myaccount"
             element={
@@ -137,7 +149,7 @@ const AppLayout = () => {
             }
           ></Route>
           <Route
-            path="/detailblog"
+            path="/detailblog/:id"
             element={
               <UnRequireAuth>
                 <DetailBlog />
@@ -145,7 +157,7 @@ const AppLayout = () => {
             }
           ></Route>
           <Route
-            path="/viewallblog"
+            path="/viewallblog/:id"
             element={
               <UnRequireAuth>
                 <ViewAllBlog />

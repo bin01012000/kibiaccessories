@@ -4,6 +4,7 @@ import { CreditCard, FastForward, HandGrabbing, Truck } from "phosphor-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import AppLoader from "../../../components/AppLoader";
+import { useWindowSize } from "../../../customHook/useWindowSize";
 import OrderListItem from "./OrderListItem/OrderListItem";
 import { doGetListOrderByCustomer } from "./OrderManagementAPI";
 import classes from "./styles.module.scss";
@@ -23,7 +24,9 @@ const OrderManagement = () => {
   const [noOrderData, setNoOrderData] = useState(false);
   const [orderList, setOrderList] = useState([]);
   const [nextPage, setNextPage] = useState();
+  const [reload, setReload] = useState(false);
   const onChange = (value) => {
+    setLoading(true);
     setCurrent(value);
     setCurrentStatus(STATUS[value]);
   };
@@ -45,8 +48,8 @@ const OrderManagement = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [user.currentUser.username, currentStatus]);
-
+  }, [user.currentUser.username, currentStatus, reload]);
+  const [width, height] = useWindowSize();
   const fetchNext = () => {
     setPage(page + 1);
     doGetListOrderByCustomer(page + 1, currentStatus, user.currentUser.username)
@@ -63,7 +66,11 @@ const OrderManagement = () => {
   };
   return (
     <div>
-      <Steps current={current} onChange={onChange}>
+      <Steps
+        direction={width >= 768 ? "horizontal" : "vertical"}
+        current={current}
+        onChange={onChange}
+      >
         <Step
           className={`${classes.stepContainer} ${
             current === 0 && classes.active
@@ -87,7 +94,7 @@ const OrderManagement = () => {
         />
       </Steps>
       <div className={classes.orderList}>
-        {loading ? (
+        {loading === true ? (
           <div className={classes.loading}>
             <AppLoader />
           </div>
@@ -98,13 +105,21 @@ const OrderManagement = () => {
               imageStyle={{
                 height: 60,
               }}
+              style={{ paddingBottom: "40px" }}
               description={"No Data"}
             />
           </div>
         ) : (
           <>
             {orderList.map((item, index) => {
-              return <OrderListItem key={index} orderItem={item} />;
+              return (
+                <OrderListItem
+                  key={index}
+                  orderItem={item}
+                  setReload={setReload}
+                  reload={reload}
+                />
+              );
             })}
             {nextPage !== null && (
               <div

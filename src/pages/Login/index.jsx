@@ -16,6 +16,7 @@ import ForgotPassword from "./ForgotPassword";
 import { useLocation, useSearchParams } from "react-router-dom";
 import emailjs from "@emailjs/browser";
 import CryptoJS from "crypto-js";
+import "boxicons";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const Login = () => {
   const [active, setActive] = React.useState(false);
   const [wrongCredentials, setWrongCredential] = React.useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [verify, setVerify] = React.useState(false);
   const search = useLocation().search;
   const query = new URLSearchParams(search);
   const email = new URLSearchParams(search).get("email");
@@ -49,11 +51,11 @@ const Login = () => {
           emailjs
             .send(
               "service_3fco6q6",
-              "template_t9ihe46",
+              "template_vv6fnlq",
               {
                 to_name: email,
                 from_name: "bin01012000@gmail.com",
-                message: ` <p> New password is: ${ps} </p>`,
+                password: `${ps}`,
               },
               "v3GcHX1OV7AjPKEdx"
             )
@@ -133,7 +135,7 @@ const Login = () => {
         onCancel={handleCancel}
         className={styles.form_forgot}
       >
-        <ForgotPassword />
+        <ForgotPassword verify={verify} setVerify={setVerify} />
       </Modal>
       <div
         className={`${styles.container} ${

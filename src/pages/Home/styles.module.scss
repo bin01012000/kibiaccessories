@@ -7,9 +7,14 @@
 
   .carousel {
     height: 80vh;
+    @include tablet {
+      height: 40vh;
+    }
   }
+
   .categories {
-    height: 60vh;
+    min-height: unset !important;
+    height: 40vh;
     display: flex;
     justify-content: center;
   }
@@ -49,38 +54,64 @@
   }
 
   @include tablet {
-    .carousel,
-    .categories,
-    .monthlyDeal,
-    .recentsNew,
-    .featured,
-    .testimonial,
-    .instagram,
-    .monthlyDeal {
-      min-height: 100vh;
-      margin-bottom: 5rem;
+    .carousel {
+      min-height: 60vh;
     }
-    max-width: 1024px;
-    padding: 0 15px;
-    overflow: hidden;
-  }
-  @include mobile {
-    .carousel,
-    .categories,
-    .monthlyDeal,
-    .recentsNew,
-    .featured,
-    .testimonial,
-    .instagram,
+    .categories {
+      min-height: 60vh;
+    }
+
+    .videoBlog {
+      max-height: 70vh;
+    }
+
     .monthlyDeal {
-      min-height: 100vh;
+      min-height: unset;
     }
     .recentsNew {
-      margin-top: 50px;
-      min-height: 100vh;
+      margin: 0;
+      min-height: 30vh;
+      height: unset;
     }
-    .featured {
-      margin-top: 10rem;
+
+    .testimonial {
+      margin-top: 300px;
+      min-height: 30vh;
+      height: unset;
+    }
+    .instagram {
+      min-height: 22vh;
+      height: 0;
+      margin-top: 100px;
+    }
+  }
+  @include mobile {
+    .carousel {
+      min-height: 60vh;
+    }
+    .categories {
+      min-height: 60vh;
+    }
+
+    .videoBlog {
+      max-height: 70vh;
+    }
+
+    .monthlyDeal {
+      min-height: 230vh;
+    }
+    .recentsNew {
+      margin: 0;
+      min-height: 80vh;
+    }
+
+    .testimonial {
+      margin-top: 50px;
+      margin-bottom: 0;
+    }
+    .instagram {
+      min-height: 45vh;
+      height: 0;
     }
   }
 }

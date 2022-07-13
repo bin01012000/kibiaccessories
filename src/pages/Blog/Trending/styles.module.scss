@@ -1,13 +1,25 @@
+@use "../../../sass/mixins" as *;
 .container {
   margin-top: 100px;
   display: flex;
   flex-direction: column;
   max-width: 1100px;
+  @include mobile {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 20px;
+  }
   .list_trending {
     margin-top: 30px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    @include tablet {
+      flex-wrap: wrap;
+      justify-content: space-evenly;
+      row-gap: 30px;
+    }
     .one_category {
       display: flex;
       position: relative;
@@ -15,6 +27,7 @@
       max-height: 225px;
       min-width: 265px;
       min-height: 225px;
+      cursor: pointer;
       img {
         max-width: 265px;
         max-height: 225px;

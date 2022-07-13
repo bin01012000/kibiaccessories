@@ -11,7 +11,14 @@ import {
 } from "antd";
 import "antd/dist/antd.min.css";
 import Cookies from "js-cookie";
-import { Handbag, Heart, SignOut, User, UserCircle } from "phosphor-react";
+import {
+  Handbag,
+  Heart,
+  LockKey,
+  SignOut,
+  User,
+  UserCircle,
+} from "phosphor-react";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
@@ -30,15 +37,28 @@ const Header = () => {
   let navigate2 = useNavigate();
   const user = useSelector((state) => state.user);
   const cart = useSelector((state) => state.cart);
+  const [isLoading, setIsLoading] = useState(true);
   const handleSignOut = () => {
-    Cookies.remove("token");
+    Cookies.remove("tokenClient");
     localStorage.removeItem("persist:root");
     navigate2("/login");
   };
+  const handleMenuClick = (e) => {
+    setVisibleDropdown(false);
+  };
+  const handleVisibleChange = (flag) => {
+    setVisible(flag);
+  };
   const menu = (
-    <Menu>
-      <Menu.Item>
-        <Link to={"/myaccount/1"} className={classes.box_profile}>
+    <Menu onClick={handleMenuClick}>
+      <Menu.Item key={1}>
+        <div
+          onClick={() => {
+            setVisibleDropdown(false);
+            navigate2(`/myaccount/1`);
+          }}
+          className={classes.box_profile}
+        >
           <div className={classes.avatar_menu}>
             <img
               src={
@@ -54,25 +74,51 @@ const Header = () => {
           <p className={classes.name_avatar}>
             {user.currentUser ? user.currentUser.name : ""}
           </p>
-        </Link>
+        </div>
       </Menu.Item>
-      <Menu.Item>
-        <Link to={"/myaccount/1"} className={classes.link_to_profile}>
+      <Menu.Item key={2}>
+        <div
+          onClick={() => {
+            setVisibleDropdown(false);
+            navigate2(`/myaccount/1`);
+          }}
+          className={classes.link_to_profile}
+        >
           <div className={classes.icon}>
             <UserCircle size={24} className={classes.icon_box} />
           </div>
           Your Profile
-        </Link>
+        </div>
       </Menu.Item>
-      <Menu.Item>
-        <Link className={classes.wish_list} to={"/myaccount/4"}>
+      <Menu.Item key={3}>
+        <div
+          onClick={() => {
+            setVisibleDropdown(false);
+            navigate2(`/myaccount/4`);
+          }}
+          className={classes.wish_list}
+        >
           <div className={classes.icon}>
             <Heart size={24} className={classes.icon_box} />
           </div>
           Wish List
-        </Link>
+        </div>
       </Menu.Item>
-      <Menu.Item>
+      <Menu.Item key={4}>
+        <div
+          onClick={() => {
+            setVisibleDropdown(false);
+            navigate2(`/myaccount/1?showpass=true`);
+          }}
+          className={classes.wish_list}
+        >
+          <div className={classes.icon}>
+            <LockKey size={24} className={classes.icon_box} />
+          </div>
+          Change Password
+        </div>
+      </Menu.Item>
+      <Menu.Item key={5}>
         <div className={classes.sign_out} onClick={handleSignOut}>
           <div className={classes.icon}>
             <SignOut size={24} className={classes.icon_box} />
@@ -82,15 +128,6 @@ const Header = () => {
       </Menu.Item>
     </Menu>
   );
-  if (user.currentUser) {
-    if (
-      user.currentUser.accessToken !== "" &&
-      user.currentUser.accessToken != null
-    ) {
-      setAuthToken(user.currentUser.accessToken);
-      getAllProductCart(user.currentUser.username);
-    }
-  }
 
   const openNotificationWithIcon = (type) => {
     notification[type]({
@@ -114,14 +151,14 @@ const Header = () => {
   const menuRef = useRef(null);
   const headerRef = useRef(null);
   const [visible, setVisible] = useState(false);
+  const [visibleDropdown, setVisibleDropdown] = useState(false);
   const ref = useClickOutside(() => setVisible(false));
-
+  // const ref2 = useClickOutside(() => setVisibleDropdown(false));
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
     menuRef.current.classList.toggle(classes.active);
   };
 
-  //console.log(user);
   useEffect(() => {
     getAllCategory().then((res) => {
       if (res) {
@@ -129,10 +166,16 @@ const Header = () => {
       }
     });
   }, [cart]);
-  //console.log(user);
+
   return (
     <div className={classes.container}>
-      <Cart visible={visible} aref={ref} setVisible={setVisible} />
+      <Cart
+        visible={visible}
+        aref={ref}
+        setVisible={setVisible}
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+      />
       <div className={classes.headerContainer} ref={headerRef}>
         <div className={classes.top}>
           <Link to={"/"} className={classes.logo}>
@@ -154,9 +197,13 @@ const Header = () => {
                 placement="bottomLeft"
                 arrow
                 trigger={["click"]}
+                // visible={visibleDropdown}
                 overlayClassName={classes.menu_header}
               >
-                <div className={classes.login}>
+                <div
+                  className={classes.login}
+                  onClick={() => setVisibleDropdown(!visibleDropdown)}
+                >
                   <User size={32} color="#000" weight="thin" />
                   <div className={classes.loginText}>
                     {formatName(user.currentUser.name)}

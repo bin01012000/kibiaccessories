@@ -7,7 +7,9 @@ import { deleteCart, downQty, getAllProductCart, upQty } from "../../api/Cart";
 import { getNumber } from "../../redux/cartRedux";
 import numberWithCommas from "../../utils/numberWithCommas";
 import classes from "./styles2.module.scss";
-
+import { Trash } from "phosphor-react";
+import DotLoading from "../Verify/DotLoading";
+import AppLoader from "../AppLoader";
 export const Cart = (props) => {
   const cart = useSelector((state) => state.cart);
   const user = useSelector((state) => state.user);
@@ -16,19 +18,23 @@ export const Cart = (props) => {
   const [product, setProduct] = useState([]);
 
   useEffect(() => {
-    if (user.currentUser != null) {
-      getAllProductCart(user.currentUser.username).then((res) => {
-        if (res) {
-          //console.log(res);
-          setProduct(res.products);
-          dispatch(getNumber(res));
-        }
-      });
+    if (user.currentUser !== null && user.currentUser !== undefined) {
+      getAllProductCart(user.currentUser.username)
+        .then((res) => {
+          if (res) {
+            setProduct(res.products);
+            dispatch(getNumber(res));
+          }
+        })
+        .finally(() => {
+          props.setIsLoading(false);
+        });
     }
   }, [cart]);
 
   return (
     <Modal centered visible={props.visible}>
+      {props.isLoading === true && <AppLoader />}
       <div ref={props.aref} style={{ padding: "24px" }}>
         <div className={classes.box_cart_item}>
           {product.length > 0 ? (
@@ -70,12 +76,15 @@ export const Cart = (props) => {
                         <button
                           className={classes.add}
                           onClick={() => {
+                            props.setIsLoading(true);
                             cart.isFetching === false &&
                               upQty(
                                 dispatch,
                                 user.currentUser.username,
                                 item.productId
-                              );
+                              ).finally(() => {
+                                props.setIsLoading(false);
+                              });
                           }}
                         >
                           <p className={classes.icon_add}></p>
@@ -88,20 +97,16 @@ export const Cart = (props) => {
                         <button
                           className={classes.delete}
                           onClick={() => {
+                            props.setIsLoading(true);
                             cart.isFetching === false &&
                               deleteCart(
                                 dispatch,
                                 user.currentUser.username,
                                 item.productId
-                              );
+                              ).finally(() => props.setIsLoading(false));
                           }}
                         >
-                          <box-icon
-                            name="trash"
-                            color="#d84727"
-                            size="24px"
-                            type="solid"
-                          ></box-icon>
+                          <Trash size={24} weight="bold" color="#d84727" />
                         </button>
                       </div>
                     </div>

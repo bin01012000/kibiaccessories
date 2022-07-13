@@ -10,6 +10,7 @@ import PaymentDetail from "./PaymentDetail/PaymentDetail";
 import classes from "./styles.module.scss";
 import AppLoader from "../../components/AppLoader";
 import SelectAddress from "./SelectAddress/SelectAddress";
+import { getAllBranch } from "./BranchAPI";
 
 const Payment = () => {
   const location = useLocation();
@@ -21,7 +22,13 @@ const Payment = () => {
   const cart = useSelector((state) => state.cart);
   const user = useSelector((state) => state.user);
   const [shippingCost, setShippingCost] = useState(0);
-
+  const [reload, setReload] = useState(false);
+  const [branchList, setBranchList] = useState([]);
+  const [branchId, setBranchId] = useState("");
+  const [shopId, setShopId] = useState(3064791);
+  const [from, setFrom] = useState(1450);
+  const [fromWard, setFromWard] = useState("20804");
+  const [provinceId, setProvinceId] = useState(202);
   const navigate = useNavigate();
   const currentStateUrl = location.pathname.split("/")[1];
   useEffect(() => {
@@ -35,16 +42,43 @@ const Payment = () => {
   useEffect(() => {
     getAddress(user.currentUser.username)
       .then((res) => {
-        //console.log(res[0].addressList);
+        console.log(res[0].addressList);
         setAdrress(res[0].addressList);
       })
       .catch(() => {
         message.error("Loading address fail, you must create one to continue");
+      });
+  }, [user.currentUser.username, navigate, reload]);
+
+  useEffect(() => {
+    getAllBranch()
+      .then((res) => {
+        setBranchList(res);
+      })
+      .catch(() => {
+        message.error(
+          "Loading branchlist fail, you must create one to continue"
+        );
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [user.currentUser.username, navigate]);
+  }, []);
+
+  const handleTakeShopId = (id) => {
+    setShopId(id);
+  };
+  const handleTakeFrom = (from) => {
+    setFrom(from);
+  };
+
+  const handleTakeFromWard = (fromward) => {
+    setFromWard(fromward);
+  };
+
+  const handleTakeProvinceId = (provinceid) => {
+    setProvinceId(provinceid);
+  };
 
   const hanldeSelectAddress = (id) => {
     setLoadingPayment(true);
@@ -60,6 +94,10 @@ const Payment = () => {
       .finally(() => {
         setLoadingPayment(false);
       });
+  };
+
+  const handleGetShopId = (shopid) => {
+    setBranchId(shopid);
   };
   //console.log("shippingCost:", shippingCost);
   const hanldeLoading = (isLoading) => {
@@ -107,6 +145,10 @@ const Payment = () => {
                 <SelectAddress
                   address={address}
                   hanldeSelectAddress={hanldeSelectAddress}
+                  reload={reload}
+                  setReload={setReload}
+                  branchList={branchList}
+                  handleGetShopId={handleGetShopId}
                 />
               )}
               {step === 1 && (
@@ -118,6 +160,11 @@ const Payment = () => {
                   address={address}
                   addressSelected={addressSelected}
                   hanldeLoading={hanldeLoading}
+                  branchId={branchId}
+                  handleTakeShopId={handleTakeShopId}
+                  handleTakeFrom={handleTakeFrom}
+                  handleTakeFromWard={handleTakeFromWard}
+                  handleTakeProvinceId={handleTakeProvinceId}
                 />
               )}
               {step === 2 && (
@@ -125,6 +172,11 @@ const Payment = () => {
                   address={address}
                   addressSelected={addressSelected}
                   shippingCost={shippingCost}
+                  branchId={branchId}
+                  shopId={shopId}
+                  from={from}
+                  fromWard={fromWard}
+                  provinceId={provinceId}
                 />
               )}
             </div>

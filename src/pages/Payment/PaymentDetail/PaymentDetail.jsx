@@ -30,8 +30,9 @@ import {
   updateOrder,
 } from "../PaymentAPI";
 import { deleteAllCart } from "../../../redux/cartRedux";
-import { getVoucher } from "../../../api/Voucher";
+import { deletedVoucher, getVoucher } from "../../../api/Voucher";
 import ListVoucher from "../ListVoucher";
+import { getBranchById } from "../BranchAPI";
 
 const STRIPE_PK_KEY =
   "pk_test_51K0LBnFjydqiWgwtTtGT2ONJJuo4TAWczmDWero4QwWVw7p6n93JvDHkkDe70u1XVF5cT0kCsJQC59DJmQdBGPys00B3LSLWLk";
@@ -107,45 +108,78 @@ const PaymentDetail = (props) => {
     : props.address[0].city;
   const [serviceId, setServiceId] = useState(0);
   const [shippingCost, setShippingCost] = useState(0);
+  const [from, setFrom] = useState(1450);
+  const [shopId, setShopId] = useState(3064791);
+  const [provinceId, setProvinceId] = useState(202);
+
   useEffect(() => {
-    getInfoService(1450, currentDistrict).then((res) => {
+    getBranchById(props.branchId).then((res) => {
+      setFrom(res.branches.districtId);
+      setShopId(res.branches.shopId);
+      setProvinceId(res.branches.cityId);
+      props.handleTakeShopId(res.branches.shopId);
+      props.handleTakeFrom(res.branches.districtId);
+      props.handleTakeFromWard(res.branches.wardId);
+      props.handleTakeProvinceId(res.branches.cityId);
+    });
+  }, [props.branchId]);
+
+  useEffect(() => {
+    getInfoService(from, currentDistrict, shopId).then((res) => {
       if (res) {
         setServiceId(res.data.data[0].service_id);
       }
     });
-  }, []);
+  }, [from]);
 
   useEffect(() => {
-    getShippingCost(
-      serviceId,
-      props.cart.totalPrice,
-      null,
-      currentWard,
-      currentDistrict,
-      1450,
-      1000,
-      15,
-      15,
-      15
-    ).then((res) => {
-      if (res) {
-        setShippingCost(res.data.data.total);
-        props.setShippingCost(res.data.data.total);
-      }
-    });
-  }, [serviceId, props.cart.totalPrice, currentWard, currentDistrict]);
-  console.log("shippingCost:", shippingCost);
+    if (parseInt(props.addressSelected.city) !== provinceId) {
+      setShippingCost(35000);
+      props.setShippingCost(35000);
+    } else {
+      getShippingCost(
+        serviceId,
+        props.cart.totalPrice,
+        null,
+        currentWard,
+        currentDistrict,
+        from,
+        1000,
+        15,
+        15,
+        15,
+        shopId
+      ).then((res) => {
+        if (res) {
+          setShippingCost(res.data.data.total);
+          props.setShippingCost(res.data.data.total);
+        }
+      });
+    }
+  }, [
+    from,
+    serviceId,
+    props.cart.totalPrice,
+    currentWard,
+    currentDistrict,
+    props.addressSelected,
+  ]);
+
   useEffect(() => {
     if (token) {
       props.hanldeLoading(true);
       const data = {
         tokenId: token.id,
-        amount: props.cart.totalPrice + shippingCost - salePrice,
+        amount:
+          props.cart.totalPrice + shippingCost - salePrice > 0
+            ? props.cart.totalPrice + shippingCost - salePrice
+            : 0,
         username: props.user.currentUser.username,
         email: props.user.currentUser.email,
         address: props.address[0].address,
         recipientName: props.address[0].recipientName,
         recipientPhone: props.address[0].recipientPhone,
+        shippingPrice: shippingCost,
       };
       doCheckoutByCard(data)
         .then((res) => {
@@ -175,13 +209,14 @@ const PaymentDetail = (props) => {
   };
   const hanldeCheckoutCOD = () => {
     props.hanldeLoading(true);
-
+    console.log("shippingCost:", shippingCost);
     const data = {
       username: props.user.currentUser.username,
       email: props.user.currentUser.email,
       address: currentAddressName,
       recipientName: currentRecipientName,
       recipientPhone: currentRecipientPhone,
+      shippingPrice: shippingCost,
     };
     doCheckoutByCod(data)
       .then((res) => {
@@ -233,22 +268,22 @@ const PaymentDetail = (props) => {
         transId
       )
         .then((res) => {
-          console.log("res:", res);
           if (res.statusCode === 200) {
-            console.log("res.data:", res.data);
-            console.log("signature:", signature);
             if (res.data === signature) {
               const datasecond = {
-                amount: props.cart.totalPrice + shippingCost - salePrice,
+                amount:
+                  props.cart.totalPrice + shippingCost - salePrice > 0
+                    ? props.cart.totalPrice + shippingCost - salePrice
+                    : 0,
                 username: props.user.currentUser.username,
                 email: props.user.currentUser.email,
                 address: props.address[0].address,
                 recipientName: props.address[0].recipientName,
                 recipientPhone: props.address[0].recipientPhone,
+                shippingPrice: shippingCost,
               };
               updateOrder(datasecond)
                 .then((res) => {
-                  console.log("res:", res);
                   if (res.statusCode === 200) {
                     message.success("Payment success");
                     props.hanldeLoading(false);
@@ -273,6 +308,7 @@ const PaymentDetail = (props) => {
   }, []);
 
   const handleMomo = (amount) => {
+    localStorage.setItem("idVauchoemxiuanhnhe", idVoucher);
     goLinkMomoPayment(amount).then((res) => {
       if (res.statusCode === 200) {
         var win = window.open(res.data.payUrl);
@@ -288,7 +324,7 @@ const PaymentDetail = (props) => {
   //-------------------------------------START VOUCHER---------------------------------------------
 
   return (
-    <>
+    <div className={classes.container}>
       <Modal visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
         <ListVoucher
           listVoucher={listVoucher}
@@ -329,9 +365,11 @@ const PaymentDetail = (props) => {
                 <div className={classes.total}>
                   <div className={classes.display}>Grand Total</div>
                   <div className={classes.price}>
-                    {numberWithCommas(
-                      props.cart.totalPrice + shippingCost - salePrice
-                    )}{" "}
+                    {props.cart.totalPrice + shippingCost - salePrice > 0
+                      ? numberWithCommas(
+                          props.cart.totalPrice + shippingCost - salePrice
+                        )
+                      : 0}{" "}
                     VND
                   </div>
                 </div>
@@ -485,7 +523,7 @@ const PaymentDetail = (props) => {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 PaymentDetail.propsType = {

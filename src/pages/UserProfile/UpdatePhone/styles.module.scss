@@ -1,3 +1,4 @@
+@use "../../../sass/mixins" as *;
 .container {
   display: flex;
   justify-content: center;
@@ -20,6 +21,11 @@
       background: #d84727;
       border-color: #d84727;
     }
+    .react-tel-input {
+      input {
+        width: 100%;
+      }
+    }
   }
 
   p {
@@ -41,6 +47,9 @@
     row-gap: 10px;
 
     width: 400px;
+    @include mobile {
+      width: unset;
+    }
 
     .form_phone {
       display: flex;
@@ -65,7 +74,6 @@
     }
 
     .small_text {
-      margin-top: 10px;
       font-size: 15px;
       .send_again {
         color: #d84727;

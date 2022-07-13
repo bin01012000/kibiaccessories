@@ -13,6 +13,12 @@ import {
   Upload,
 } from "antd";
 import CryptoJS from "crypto-js";
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+} from "firebase/storage";
 import { Field, Form, Formik } from "formik";
 import Cookies from "js-cookie";
 import moment from "moment";
@@ -20,20 +26,16 @@ import { EnvelopeSimple, Key, Phone } from "phosphor-react";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useSearchParams } from "react-router-dom";
-import { updateEmail } from "../../../api/User";
+import { object } from "yup";
+import { checkExist, updateEmail } from "../../../api/User";
 import userPlaceholder from "../../../assets/user_avatar.jpg";
+import { app } from "../../../firebase/firebase";
 import { updateProfile } from "../../../redux/apiCalls";
 import { updateSuccess } from "../../../redux/userRedux";
 import UpdateEmail from "../UpdateEmail";
 import UpdatePassword from "../UpdatePassword";
 import UpdatePhone from "../UpdatePhone";
 import s from "./styles.module.scss";
-
-const getBase64 = (img, callback) => {
-  const reader = new FileReader();
-  reader.addEventListener("load", () => callback(reader.result));
-  reader.readAsDataURL(img);
-};
 
 const beforeUpload = (file) => {
   const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
@@ -50,16 +52,14 @@ const beforeUpload = (file) => {
 
   return isJpgOrPng && isLt2M;
 };
-const token = Cookies.get("token");
+const token = Cookies.get("tokenClient");
 const dateFormat = "YYYY/MM/DD";
 const MyAccount = () => {
   const { Option } = Select;
   const [loading, setLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState();
-  const [url, setUrl] = useState();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [update, setUpdate] = useState(0);
-  const [progressUpload, setProgressupload] = React.useState(0);
+  const [avatar, setAvatar] = useState();
   const user = useSelector((state) => state.user);
   const [searchParams, setSearchParams] = useSearchParams();
   const [randomChar, setRandomChar] = useState("");
@@ -68,6 +68,7 @@ const MyAccount = () => {
   const id = new URLSearchParams(search).get("id");
   const email = new URLSearchParams(search).get("email");
   const prv = new URLSearchParams(search).get("prv");
+  const showpassword = new URLSearchParams(search).get("showpass");
   const [verify, setVerify] = useState(false);
   useEffect(() => {
     if (prv != null && prv != undefined) {
@@ -96,46 +97,64 @@ const MyAccount = () => {
           email = "";
         }
       });
+      setVerify(false);
+      setSearchParams("");
     }
-    setVerify(false);
+  }, []);
+
+  useEffect(() => {
+    if (showpassword === "true") {
+      setUpdate(2);
+      showModal();
+    }
     setSearchParams("");
   }, []);
 
   const handleUpdateEmail = (email) => {
-    var result = "";
-    var characters =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    var charactersLength = characters.length;
-    for (var i = 0; i < 300; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-
-    setRandomChar(result);
-    var enc = CryptoJS.AES.encrypt(
-      email,
-      `${process.env.REACT_APP_PRIVATE_KEY}`
-    ).toString();
-    emailjs
-      .send(
-        "service_3fco6q6",
-        "template_t9ihe46",
-        {
-          to_name: email,
-          from_name: "bin01012000@gmail.com",
-          message: ` <a href='https://localhost:3000/myaccount/1/?id=${result}&email=${email}&prv=${enc}' target='_blank'> Google </a>`,
-        },
-        "v3GcHX1OV7AjPKEdx"
-      )
-      .then(
-        (res) => {
-          if (res.status === 200) {
-            message.success("Please check your email and verify");
-          }
-        },
-        (error) => {
-          //console.log(error.text);
+    checkExist(email).then((res) => {
+      if (res.status === 200) {
+        var result = "";
+        var characters =
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        var charactersLength = characters.length;
+        for (var i = 0; i < 300; i++) {
+          result += characters.charAt(
+            Math.floor(Math.random() * charactersLength)
+          );
         }
-      );
+
+        setRandomChar(result);
+        var enc = CryptoJS.AES.encrypt(
+          email,
+          `${process.env.REACT_APP_PRIVATE_KEY}`
+        ).toString();
+        emailjs
+          .send(
+            "service_3fco6q6",
+            "template_t9ihe46",
+            {
+              to_name: email,
+              from_name: "kibiaccessories@kibi.vn",
+              link: `https://localhost:3000/myaccount/1/?id=${result}&email=${email}&prv=${enc}`,
+            },
+            "v3GcHX1OV7AjPKEdx"
+          )
+          .then(
+            (res) => {
+              if (res.status === 200) {
+                setVerify(true);
+                message.success("Please check your email and verify");
+              }
+            },
+            (error) => {
+              //console.log(error.text);
+            }
+          );
+      } else {
+        message.error("Email already exists");
+      }
+    });
+    setTimeout(() => setVerify(false), 6000);
   };
 
   const showModal = () => {
@@ -152,10 +171,8 @@ const MyAccount = () => {
 
   const handleChange = (info) => {
     // Get this url from response in real world.
-    getBase64(info.file.originFileObj, (url) => {
-      setLoading(false);
-      setImageUrl(url);
-    });
+    // console.log(info.file.originFileObj);
+    setAvatar(info.file.originFileObj);
   };
 
   const uploadButton = (
@@ -171,30 +188,71 @@ const MyAccount = () => {
       <Formik
         // validationSchema={loginSchema}
         initialValues={{
-          name: user.currentUser !== null ? user.currentUser?.name : "",
-          username: user.currentUser !== null ? user.currentUser?.username : "",
-          dob: user.currentUser !== null ? user.currentUser?.dob : "",
-          gender: user.currentUser !== null ? user.currentUser?.gender : "",
+          name: user.currentUser ? user.currentUser?.name : "",
+          username: user.currentUser ? user.currentUser?.username : "",
+          dob: user.currentUser ? user.currentUser?.dob : "",
+          gender: user.currentUser ? user.currentUser?.gender : "",
         }}
         onSubmit={async (values) => {
           // {imageUrl ? : }
-          updateProfile(
-            dispatch,
-            user.currentUser?._id,
-            values.name,
-            values.dob,
-            values.gender,
-            imageUrl
-          ).then((res) => {
-            if (res) {
-              const obj = {
-                user: res,
-                accessToken: token,
-              };
-              message.success("Update success");
-              dispatch(updateSuccess(obj));
-            }
-          });
+          if (avatar) {
+            const fileName = new Date().getTime() + avatar.name;
+            const storage = getStorage(app);
+            const storageRef = ref(storage, fileName);
+            const uploadTask = uploadBytesResumable(storageRef, avatar);
+
+            uploadTask.on(
+              "state_changed",
+              (snapshot) => {
+                const progress = Math.round(
+                  (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+                );
+              },
+              (error) => {
+                console.log(error);
+              },
+              async () => {
+                await getDownloadURL(uploadTask.snapshot.ref).then(
+                  (downloadURL) => {
+                    updateProfile(
+                      dispatch,
+                      user.currentUser?._id,
+                      values.name,
+                      values.dob,
+                      values.gender,
+                      downloadURL
+                    ).then((res) => {
+                      if (res) {
+                        const obj = {
+                          user: res,
+                          accessToken: token,
+                        };
+                        message.success("Update success");
+                        dispatch(updateSuccess(obj));
+                      }
+                    });
+                  }
+                );
+              }
+            );
+          } else {
+            updateProfile(
+              dispatch,
+              user.currentUser?._id,
+              values.name,
+              values.dob,
+              values.gender
+            ).then((res) => {
+              if (res) {
+                const obj = {
+                  user: res,
+                  accessToken: token,
+                };
+                message.success("Update success");
+                dispatch(updateSuccess(obj));
+              }
+            });
+          }
         }}
       >
         {({ errors, touched, setFieldValue }) => {
@@ -208,38 +266,34 @@ const MyAccount = () => {
                     </h3>
                   </div>
                   <Row className={s.form_info}>
-                    <Col span={12}>
+                    <Col span={24} xl={12} lg={24} sm={24}>
                       <p className={s.text_info}>Personal Information</p>
                       <Row className={s.avatar_name}>
                         <Col
-                          span={8}
+                          span={24}
+                          lg={12}
+                          xl={8}
+                          sm={12}
                           style={{
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "center",
                           }}
                         >
-                          {user.currentUser?.avatar ? (
+                          {avatar ? (
                             <div>
                               <img
-                                src={user.currentUser?.avatar}
+                                src={URL.createObjectURL(avatar)}
                                 alt="avatar"
-                                style={{
-                                  width: "120px",
-                                  height: "120px",
-                                  objectFit: "cover",
-                                }}
                               />
                             </div>
                           ) : (
                             <div>
                               <img
-                                src={userPlaceholder}
+                                src={
+                                  user.currentUser?.avatar || userPlaceholder
+                                }
                                 alt=""
-                                style={{
-                                  width: "120px",
-                                  height: "120px",
-                                }}
                               />
                             </div>
                           )}
@@ -254,7 +308,7 @@ const MyAccount = () => {
                             {uploadButton}
                           </Upload>
                         </Col>
-                        <Col span={16}>
+                        <Col span={24} xl={16} lg={12} sm={12}>
                           <FormAnt.Item
                             validateStatus={
                               Boolean(touched?.name && errors?.name)
@@ -295,53 +349,60 @@ const MyAccount = () => {
                           </FormAnt.Item>
                         </Col>
                       </Row>
-                      <FormAnt.Item
-                        validateStatus={
-                          Boolean(touched?.dob && errors?.dob)
-                            ? "error"
-                            : "success"
-                        }
-                        help={
-                          Boolean(touched?.dob && errors?.dob) && errors?.dob
-                        }
-                        initialValue={moment(user.currentUser?.dob, dateFormat)}
-                      >
-                        <DatePicker
-                          format={dateFormat}
-                          onChange={(value, dateString) =>
-                            setFieldValue("dob", dateString)
+                      <div className={s.dob_gender}>
+                        <FormAnt.Item
+                          validateStatus={
+                            Boolean(touched?.dob && errors?.dob)
+                              ? "error"
+                              : "success"
                           }
-                          defaultValue={
-                            user.currentUser?.dob
-                              ? moment(user.currentUser?.dob, dateFormat)
-                              : undefined
+                          help={
+                            Boolean(touched?.dob && errors?.dob) && errors?.dob
                           }
-                        />
-                      </FormAnt.Item>
-                      <FormAnt.Item
-                        name="gender"
-                        validateStatus={
-                          Boolean(touched?.gender && errors?.gender)
-                            ? "error"
-                            : "success"
-                        }
-                        help={
-                          Boolean(touched?.gender && errors?.gender) &&
-                          errors?.gender
-                        }
-                        className={s.gender}
-                        initialValue={user.currentUser?.gender}
-                      >
-                        <Select
-                          placeholder="select your gender"
-                          defaultValue={user.currentUser?.gender}
-                          onChange={(value) => setFieldValue("gender", value)}
+                          initialValue={moment(
+                            user.currentUser?.dob,
+                            dateFormat
+                          )}
                         >
-                          <Option value="male">Male</Option>
-                          <Option value="female">Female</Option>
-                          <Option value="other">Other</Option>
-                        </Select>
-                      </FormAnt.Item>
+                          <Field name="dob">
+                            {({ field }) => (
+                              <DatePicker
+                                format={dateFormat}
+                                onChange={(value, dateString) =>
+                                  setFieldValue("dob", dateString)
+                                }
+                                defaultValue={
+                                  user.currentUser?.dob &&
+                                  moment(user.currentUser?.dob, dateFormat)
+                                }
+                              />
+                            )}
+                          </Field>
+                        </FormAnt.Item>
+
+                        <Field name="gender">
+                          {({ field }) => (
+                            <Select
+                              placeholder="select your gender"
+                              defaultValue={user.currentUser?.gender}
+                              onChange={(value) =>
+                                setFieldValue("gender", value)
+                              }
+                            >
+                              <Option value="male">Male</Option>
+                              <Option value="female">Female</Option>
+                              <Option value="other">Other</Option>
+                            </Select>
+                          )}
+                        </Field>
+                        <Button
+                          type="primary"
+                          htmlType="submit"
+                          className={s.button_saveinfo_tablet}
+                        >
+                          Submit
+                        </Button>
+                      </div>
                       <FormAnt.Item
                         labelCol={{
                           span: 7,
@@ -358,7 +419,7 @@ const MyAccount = () => {
                       </FormAnt.Item>
                     </Col>
 
-                    <Col span={12}>
+                    <Col span={24} lg={12} sm={24}>
                       <div className={s.full_content_right}>
                         <p className={s.text_info}>Phone and Email</p>
                         <div className={s.phone}>

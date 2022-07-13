@@ -1,17 +1,16 @@
-import { LoadingOutlined } from "@ant-design/icons";
-import { Button, Checkbox, Dropdown, Menu, Spin } from "antd";
+import { useClickOutside } from "@mantine/hooks";
+import { Button, Dropdown, Menu, Radio } from "antd";
 import "antd/dist/antd.css";
 import { motion } from "framer-motion";
-import { DotsNine, ListDashes, Funnel } from "phosphor-react";
-import React, { useEffect, useState } from "react";
+import { DotsNine, Funnel, ListDashes } from "phosphor-react";
+import React, { useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { getBrand } from "../../../api/Brand";
 import EmptyPage from "../../../components/Empty";
+import DotLoading from "../../../components/Verify/DotLoading";
 import { ProductCardGrid } from "../ProductCardGrid";
 import { ProductCardList } from "../ProductCardList";
 import RangePrice from "../RangePrice";
 import classes from "./styles.module.scss";
-const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
 const ListProduct = (props) => {
   const [glActive, setGlActive] = useState(true);
@@ -19,7 +18,8 @@ const ListProduct = (props) => {
   const [value, setValue] = useState("");
   const [range, setRange] = useState([1000000, 10000000]);
   const [idBrand, setIdBrand] = useState("");
-
+  const [visibleDropdown2, setVisibleDropdown2] = useState(false);
+  const ref3 = useClickOutside(() => setVisibleDropdown2(false));
   const handleGrid = () => {
     setGlActive(false);
   };
@@ -30,45 +30,58 @@ const ListProduct = (props) => {
   function handleChange(checkedValues) {
     setValue(checkedValues.target.value);
   }
+
   const menu = (
     <Menu>
-      <RangePrice setValue={setRange} value={range} />
-      <div className={classes.text_range}>
-        <p className={classes.min_range_price}>1m </p>
-        <p className={classes.max_range_price}>10m</p>
+      <RangePrice setValue={setRange} value={range} key={1} />
+      <div className={classes.text_range} key={2}>
+        <p className={classes.min_range_price}>1.000.000vnđ</p>
+        <p className={classes.max_range_price}>10.000.000vnđ</p>
       </div>
-      <hr className={classes.line_devide} />
-      <p className={classes.title_filter}>Brand</p>
-      <Checkbox.Group
+      <hr className={classes.line_devide} key={3} />
+      <p className={classes.title_filter} key={4}>
+        Brand
+      </p>
+      <Radio.Group
         style={{ width: "100%" }}
         className={classes.checkbox_group}
+        key={5}
       >
         {props.listBrand?.brands?.map((item, index) => {
           return (
-            <Checkbox
+            <Radio
               key={index}
               checked={item._id === value}
               value={item._id}
               onChange={() => setIdBrand(item._id)}
             >
               {item.brand}
-            </Checkbox>
+            </Radio>
           );
         })}
-      </Checkbox.Group>
-
-      <button
+      </Radio.Group>
+      <hr className={classes.line_devide} key={6} />
+      <p className={classes.title_filter} key={7}>
+        Rating
+      </p>
+      <Button
+        key={8}
         className={classes.submit_filter}
-        onClick={() => props.handleFilter("", idBrand, range[0], range[1], "")}
+        onClick={() => {
+          setVisibleDropdown2(false);
+          props.handleFilter("", idBrand, range[0], range[1], "");
+        }}
       >
         Submit
-      </button>
+      </Button>
     </Menu>
   );
-
+  const handleVisibleChange = (flag) => {
+    setVisibleDropdown2(flag);
+  };
   return (
     <>
-      <div className={classes.container}>
+      <div className={classes.container} id="scrollableDiv">
         <div className={classes.image__wrap}>
           <img
             src="https://matoa-indonesia.com/wp-content/uploads/2022/05/Req-10-01-1-scaled.jpg"
@@ -86,15 +99,21 @@ const ListProduct = (props) => {
             {props.data?.totalItems === undefined ||
               (props.data?.totalItems === 0 && `Showing 0 of 0 result`)}
           </p>
-          <div className={classes.short__list__grid}>
+          <div className={classes.short__list__grid} ref={ref3}>
             <Dropdown
               overlay={menu}
-              placement="bottomLeft"
+              placement="bottomRight"
               arrow
               trigger={["click"]}
               overlayClassName={classes.filter}
+              // visible={visibleDropdown2}
             >
-              <Funnel size={24} weight="thin" style={{ cursor: "pointer" }} />
+              <Funnel
+                size={24}
+                weight="thin"
+                style={{ cursor: "pointer" }}
+                onClick={() => setVisibleDropdown2(!visibleDropdown2)}
+              />
             </Dropdown>
             <p className={classes.txtviewon}>View on</p>
             <ListDashes
@@ -111,19 +130,27 @@ const ListProduct = (props) => {
         </div>
         {props.loading === true ? (
           <div className={classes.spin}>
-            <Spin indicator={antIcon} />
+            <DotLoading />
           </div>
         ) : props.data.products?.length > 0 ? (
-          <div id="scrollableDiv">
+          <div>
             <InfiniteScroll
-              dataLength={1}
+              dataLength={props.data.products.length}
               next={() => {
-                alert("asdjsadj");
-                if (page < props.totalPages) {
-                  props.fetchMore(page);
-                }
+                alert("asdsadjh");
               }}
               hasMore={true}
+              loader={
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    paddingBottom: "50px",
+                  }}
+                >
+                  <DotLoading />
+                </div>
+              }
               scrollableTarget="scrollableDiv"
               endMessage={
                 <p style={{ textAlign: "center" }}>

@@ -12,9 +12,12 @@ import { Empty, message } from "antd";
 import AppLoader from "../../../components/AppLoader";
 import { getInfoService, getLeadTime } from "../../../api/Shipping";
 import timeToDate from "../../../utils/timeToDate";
+import { deletedVoucher } from "../../../api/Voucher";
+import moment from "moment";
+
 const Confirmation = (props) => {
   const [serviceId, setServiceId] = useState(0);
-  console.log("addressSelected:", props.address[0]);
+
   const currentWard = props.addressSelected
     ? props.addressSelected.ward
     : props.address[0].ward;
@@ -22,8 +25,8 @@ const Confirmation = (props) => {
     ? props.addressSelected.district
     : props.address[0].district;
   const currentCity = props.addressSelected
-    ? props.addressSelected.city
-    : props.address[0].city;
+    ? props.addressSelected?.city
+    : props.address[0]?.city;
   const location = useLocation();
   //console.log(location.pathname.split("/")[2]);
   const [orderDetail, setOrderDetail] = useState();
@@ -31,7 +34,7 @@ const Confirmation = (props) => {
   const [leadTime, setLeadTime] = useState(0);
 
   useEffect(() => {
-    getInfoService(1450, currentDistrict).then((res) => {
+    getInfoService(props.from, currentDistrict).then((res) => {
       if (res) {
         setServiceId(res.data.data[0].service_id);
       }
@@ -39,23 +42,44 @@ const Confirmation = (props) => {
   }, []);
 
   useEffect(() => {
-    getLeadTime(currentDistrict, currentWard, serviceId).then((res) => {
-      if (res) {
-        setLeadTime(res.data?.data?.leadtime);
-      }
-    });
-  }, [serviceId]);
-  console.log("timeToDate(leadTime);:", timeToDate(leadTime));
+    if (parseInt(props.addressSelected?.city) !== props.provinceId) {
+      var result = new Date(Date.now());
+      result.setDate(result.getDate() + 10);
+      console.log("result:", result);
+      setLeadTime(Date.parse(result));
+    } else {
+      getLeadTime(
+        props.from,
+        props.fromWard,
+        currentDistrict,
+        currentWard,
+        serviceId,
+        props.shopId
+      ).then((res) => {
+        if (res) {
+          setLeadTime(res.data?.data?.leadtime);
+        }
+      });
+    }
+  }, [props.from, props.fromWard, serviceId, props.shopId]);
+
+  // console.log("timeToDate(leadTime);:", timeToDate(leadTime));
+
   useEffect(() => {
     doGetDetailOrder(id)
       .then((res) => {
-        //console.log(res);
+        var idVoucher = localStorage.getItem("idVauchoemxiuanhnhe");
+        if (idVoucher !== "" && idVoucher) {
+          deletedVoucher(idVoucher).then(() => {});
+          localStorage.removeItem("idVauchoemxiuanhnhe");
+        }
         setOrderDetail(res);
       })
       .catch(() => {
         message.error("Loading order detail fail");
       });
   }, [id]);
+  console.log(orderDetail?.shippingPrice);
   return (
     <>
       {orderDetail ? (
@@ -76,7 +100,7 @@ const Confirmation = (props) => {
             <div className={classes.delivery}>
               <div className={classes.deliveryItem}>
                 <Clock weight="light" />
-                {timeToDate(leadTime)}
+                {moment(leadTime).format("dddd DD, MMM, YYYY")}
               </div>
               <div className={classes.deliveryItem}>
                 <Truck weight="light" />
@@ -128,7 +152,7 @@ const Confirmation = (props) => {
             <div className={classes.contentItem}>
               <div className={classes.display}>Shipping Cost</div>
               <div className={classes.price}>
-                {numberWithCommas(props.shippingCost)} VND
+                {numberWithCommas(orderDetail.shippingPrice)} VND
               </div>
             </div>
             {/* <div className={classes.contentItem}>
@@ -140,7 +164,9 @@ const Confirmation = (props) => {
             <div className={classes.total}>
               <div className={classes.display}>Grand Total</div>
               <div className={classes.price}>
-                {numberWithCommas(orderDetail.totalPrice + props.shippingCost)}{" "}
+                {numberWithCommas(
+                  orderDetail.totalPrice + orderDetail.shippingPrice
+                )}{" "}
                 VND
               </div>
             </div>

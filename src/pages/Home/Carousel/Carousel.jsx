@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import classes from "./styles.module.scss";
 import watch from "../../../assets/home/image 6.png";
 import {
@@ -8,6 +8,10 @@ import {
   Watch,
 } from "phosphor-react";
 import WaveAnimation from "../../../components/WaveAnimation";
+import { getThreeProduct } from "../HomeApi";
+import { useDispatch, useSelector } from "react-redux";
+import { handleAddToCart } from "../../../api/Cart";
+import { message } from "antd";
 const carouselData = [
   {
     display: "WAY KAMBAS MINI EBONY",
@@ -30,11 +34,34 @@ const carouselData = [
 ];
 
 const Carousel = () => {
+  const [productList, setProductList] = useState([]);
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
+
+  useEffect(() => {
+    getThreeProduct().then((res) => {
+      setProductList(res.products);
+    });
+  }, []);
+
+  const getImage = (index) => {
+    switch (index) {
+      case 0:
+        return watch;
+      case 1:
+        return watch;
+      case 2:
+        return watch;
+      default:
+        break;
+    }
+  };
+
   const [active, setActive] = useState(0);
   return (
     <div className={classes.backgroundContainer}>
       <div className={classes.carouselContainer}>
-        {carouselData.map((item, index) => {
+        {productList?.map((item, index) => {
           return (
             <div
               className={`${classes.carouselItem} ${
@@ -43,15 +70,33 @@ const Carousel = () => {
               key={index}
             >
               <div className={classes.left}>
-                <img src={item.image} alt="" />
+                <img src={getImage(index)} alt="" />
               </div>
               <div className={classes.right}>
                 <div className={classes.infoContainer}>
-                  <div className={classes.title}>{item.display}</div>
+                  <div className={classes.title}>{item.product}</div>
                   <div className={classes.line}></div>
-                  <div className={classes.desc}>{item.desc}</div>
+                  <div className={classes.desc}>
+                    Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+                    Libero unde cupiditate, hic natus eligendi tempore veniam
+                    impedit placeat laudantium ab voluptatibus rem quasi non,
+                    eius et voluptatum officia, illum adipisci.
+                  </div>
                   <div className={classes.btn}>
-                    <button className={classes.addToCart}>
+                    <button
+                      className={classes.addToCart}
+                      onClick={() => {
+                        if (user.currentUser) {
+                          handleAddToCart(
+                            dispatch,
+                            user.currentUser.username,
+                            item._id
+                          );
+                        } else {
+                          message.error("Please sign in");
+                        }
+                      }}
+                    >
                       <ShoppingCart size={20} weight="light" />
                       Add to cart
                     </button>

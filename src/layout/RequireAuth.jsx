@@ -5,27 +5,31 @@ import { Navigate, useLocation } from "react-router-dom";
 import { Footer } from "../components/Footer";
 import Header from "../components/Header";
 import jwt_decode from "jwt-decode";
+import DotRing from "../components/DotRing";
+import { useWindowSize } from "../customHook/useWindowSize";
+import { Brand } from "../components/Brand";
 
 const RequireAuth = ({ children }) => {
+  const [width, height] = useWindowSize();
   const location = useLocation();
-  const isLoggedIn = Boolean(Cookies.get("token"));
+  const isLoggedIn = Boolean(Cookies.get("tokenClient"));
 
   if (!isLoggedIn) {
     return <Navigate to="/login" state={{ form: location }} replace />;
   }
-  const deCodeToken = jwt_decode(Cookies.get("token"));
-  // console.log(deCodeToken);
+  const deCodeToken = jwt_decode(Cookies.get("tokenClient"));
+  // console.log(deCodeToken.exp < Date.now() / 1000);
 
   if (deCodeToken.exp < Date.now() / 1000) {
-    console.log("first");
-    Cookies.remove("token");
+    Cookies.remove("tokenClient");
     localStorage.removeItem("persist:root");
   }
   return (
     <>
       <Header />
+      {width > 1280 && <DotRing />}
       <div>{children}</div>
-
+      <Brand />
       <Footer />
     </>
   );
