@@ -1,5 +1,5 @@
 import { useClickOutside } from "@mantine/hooks";
-import { Button, Dropdown, Menu, Radio, Rate } from "antd";
+import { Button, Checkbox, Dropdown, Menu, Radio, Rate } from "antd";
 import "antd/dist/antd.css";
 import { motion } from "framer-motion";
 import { DotsNine, Funnel, ListDashes } from "phosphor-react";
@@ -68,24 +68,24 @@ const ListProduct = (props) => {
           <p className={classes.title_filter} key={4}>
             Brand
           </p>
-          <Radio.Group
+          <Checkbox.Group
             style={{ width: "100%" }}
             className={classes.checkbox_group}
             key={5}
           >
             {props.listBrand?.brands?.map((item, index) => {
               return (
-                <Radio
+                <Checkbox
                   key={index}
                   checked={item._id === value}
                   value={item._id}
                   onChange={() => setIdBrand(item._id)}
                 >
                   {item.brand}
-                </Radio>
+                </Checkbox>
               );
             })}
-          </Radio.Group>
+          </Checkbox.Group>
           <hr className={classes.line_devide} key={6} />
           <p className={classes.title_filter} key={7}>
             Rating

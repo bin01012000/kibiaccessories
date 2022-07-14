@@ -1,4 +1,9 @@
 @use "../../../sass/mixins" as *;
+
+.checkbox_group {
+  display: flex !important  ;
+  flex-direction: row !important;
+}
 .filter {
   z-index: 998 !important;
   .text_range {
