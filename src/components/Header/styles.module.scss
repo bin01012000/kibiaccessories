@@ -55,6 +55,7 @@
     padding: 0;
     margin: 0;
   }
+
   :global {
     .ant-dropdown-menu {
       display: flex;
@@ -64,6 +65,7 @@
       background: #f8eee3;
       border-radius: 3px;
     }
+
     .ant-dropdown-arrow {
       background: #f8eee3;
       &::before {
@@ -72,7 +74,15 @@
     }
   }
 }
-
+:global {
+  .ant-select-dropdown {
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+    max-width: 468px !important;
+    min-width: unset !important;
+    position: fixed;
+  }
+}
 .container {
   overflow: hidden;
   display: flex;
@@ -162,6 +172,7 @@
       .search {
         width: 500px;
         text-align: center;
+        z-index: 1001;
       }
     }
     .bottom {
@@ -242,6 +253,7 @@
   }
   @include mobile {
     .headerContainer {
+      height: unset;
       .top {
         display: flex;
         flex-direction: column;

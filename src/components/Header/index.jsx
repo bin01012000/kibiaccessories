@@ -158,15 +158,6 @@ const Header = () => {
 
   let navigate = useNavigate();
 
-  const onSearch = (value) => {
-    var regex = /^[a-zA-Z]+$/;
-    if (value && regex.test(value)) {
-      navigate(`/search/${value}`);
-    } else {
-      openNotificationWithIcon("warning");
-    }
-  };
-
   const [category, setCategory] = useState({});
   const [collapsed, setCollapsed] = useState(false);
   const menuRef = useRef(null);
@@ -174,15 +165,19 @@ const Header = () => {
   const [visible, setVisible] = useState(false);
   const [visibleDropdown, setVisibleDropdown] = useState(false);
   const ref = useClickOutside(() => setVisible(false));
-  const options = allProductTemp.map((item, index) => {
-    return (
-      <Option key={item.product} value={item.product}>
-        {item.product}
-      </Option>
-    );
-  });
+  const options = allProductTemp.map((item) => ({
+    value: item.product,
+    label: (
+      <div style={{ display: "flex", textAlign: "center" }}>
+        {item.product && (
+          <span style={{ fontSize: "14px", color: "grey", flex: 1 }}>
+            {item.product}
+          </span>
+        )}
+      </div>
+    ),
+  }));
 
-  console.log("options:", options);
   // const ref2 = useClickOutside(() => setVisibleDropdown(false));
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
@@ -197,6 +192,18 @@ const Header = () => {
     });
   }, [cart]);
 
+  const onSearch = (value) => {
+    var regex = /^[a-zA-Z]+$/;
+    // console.log(value);
+    if (value) {
+      console.log("value", value);
+      navigate(`/search/${value}`);
+    } else if (value === "") {
+      return;
+    } else {
+      openNotificationWithIcon("warning");
+    }
+  };
   return (
     <div className={classes.container}>
       <Cart
@@ -247,8 +254,9 @@ const Header = () => {
           >
             <AutoComplete
               required={true}
-              onSearch={onSearch}
-              dataSource={options}
+              // onSearch={onSearch}
+              options={options}
+              onSelect={() => {}}
               onChange={(value) => {
                 if (value !== "") {
                   let res = [];
@@ -264,6 +272,7 @@ const Header = () => {
               }}
             >
               <Search
+                onSearch={onSearch}
                 className={classes.search}
                 placeholder="Search products, accessory, etc..."
               ></Search>
