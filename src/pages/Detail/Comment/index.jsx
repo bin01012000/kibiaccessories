@@ -4,12 +4,15 @@ import { useEffect, useState } from "react";
 import InputEmoji from "react-input-emoji";
 import { useSelector } from "react-redux";
 import {
+  checkLike,
   createComment,
   deleteComment,
   getCommentByProduct,
+  likeComment,
 } from "../../../api/Comment";
 import s from "./styles.module.scss";
 import avatarPlaceholder from "../../../assets/user_avatar.jpg";
+import { ThumbsUp } from "phosphor-react";
 const Comment = (props) => {
   const [rating, setRating] = useState(5);
   const [content, setContent] = useState("");
@@ -17,6 +20,7 @@ const Comment = (props) => {
   const [totalPages, setTotalPages] = useState([]);
   const [page, setPage] = useState(1);
   const [reload, setReload] = useState(false);
+  const [reload2, setReload2] = useState(false);
   const user = useSelector((state) => state.user);
   const customIcons = {
     1: <FrownOutlined />,
@@ -28,20 +32,16 @@ const Comment = (props) => {
 
   useEffect(() => {
     getCommentByProduct(props.data.product._id, page).then((res) => {
-      //console.log(res);
       setTotalPages(res.data.totalPages);
       setListComment((listComment) => [...listComment, ...res.data.comments]);
     });
-  }, [page, props.data.product._id]);
+  }, [page, props.data.product._id, reload, reload2]);
 
   useEffect(() => {
     getCommentByProduct(props.data.product._id, 1).then((res) => {
-      //console.log(res);
-      //console.log(listComment);
       setListComment(res.data.comments);
     });
-    console.log("props.data.product:", props.data.product);
-  }, [reload, props.data.product._id]);
+  }, [reload2, reload, props.data.product._id]);
 
   const handleComment = () => {
     createComment(
@@ -53,11 +53,18 @@ const Comment = (props) => {
       user.currentUser.avatar,
       props.data.product.images[0]
     ).then((res) => {
-      //console.log(res);
       if (res) {
         message.success("Comment successs");
       }
       setReload(!reload);
+    });
+  };
+
+  const like = (id, username) => {
+    likeComment(id, username).then((res) => {
+      if (res.status === 200) {
+        setReload2(!reload2);
+      }
     });
   };
 
@@ -110,6 +117,9 @@ const Comment = (props) => {
       )}
 
       {listComment?.map((item, index) => {
+        const a = item.userLiked.some(
+          (value) => value.username === user.currentUser?.username
+        );
         return (
           <div className={s.box_rs_comment} key={index}>
             <div className={s.avatar}>
@@ -121,20 +131,46 @@ const Comment = (props) => {
             </div>
             <div className={s.frame_comment}>
               <p className={s.fullname}>{item?.name}</p>
-              <Rate value={item?.rating} allowHalf />
+              <Rate value={item?.rating} allowHalf disabled />
               <p className={s.comment}>{item?.comment}</p>
-              {item?.username === user.currentUser?.username ? (
-                <p
-                  className={s.delete}
-                  onClick={() =>
-                    handleDeleteComment(item._id, props.data.product._id)
-                  }
-                >
-                  Delete
-                </p>
-              ) : (
-                ""
-              )}
+              <div className={s.like_delete}>
+                {a === true ? (
+                  <ThumbsUp
+                    style={{ cursor: "pointer" }}
+                    size={20}
+                    weight="bold"
+                    color="#d84727"
+                    onClick={() => {
+                      like(item?._id, user.currentUser?.username);
+                      setReload2(!reload2);
+                    }}
+                  />
+                ) : (
+                  <ThumbsUp
+                    style={{ cursor: "pointer" }}
+                    size={20}
+                    weight="bold"
+                    color="#999"
+                    onClick={() => {
+                      like(item?._id, user.currentUser?.username);
+                      setReload2(!reload2);
+                    }}
+                  />
+                )}
+
+                {item?.username === user.currentUser?.username ? (
+                  <p
+                    className={s.delete}
+                    onClick={() =>
+                      handleDeleteComment(item._id, props.data.product._id)
+                    }
+                  >
+                    Delete
+                  </p>
+                ) : (
+                  ""
+                )}
+              </div>
             </div>
           </div>
         );

@@ -17,7 +17,7 @@ const ListProduct = (props) => {
 
   const [value, setValue] = useState("");
   const [range, setRange] = useState([1000000, 10000000]);
-  const [idBrand, setIdBrand] = useState("");
+  const [idBrand, setIdBrand] = useState([]);
   const [visibleDropdown2, setVisibleDropdown2] = useState(false);
   const ref3 = useClickOutside(() => setVisibleDropdown2(false));
   const [rating, setRating] = useState(0);
@@ -35,7 +35,9 @@ const ListProduct = (props) => {
   function handleChangeRating(e) {
     setRating(e.target.value);
   }
-
+  const onChange = (checkedValues) => {
+    setIdBrand(checkedValues);
+  };
   const fakeRating = [
     {
       id: "1",
@@ -72,6 +74,7 @@ const ListProduct = (props) => {
             style={{ width: "100%" }}
             className={classes.checkbox_group}
             key={5}
+            onChange={onChange}
           >
             {props.listBrand?.brands?.map((item, index) => {
               return (
@@ -103,7 +106,7 @@ const ListProduct = (props) => {
                   value={index + 1}
                   onChange={handleChangeRating}
                 >
-                  {item.id} <Rate value={index + 1} />
+                  {item.id} <Rate disabled value={index + 1} />
                 </Radio>
               );
             })}
@@ -130,7 +133,7 @@ const ListProduct = (props) => {
 
   return (
     <>
-      <div className={classes.container} id="scrollableDiv">
+      <div className={classes.container}>
         <div className={classes.image__wrap}>
           <img
             src="https://matoa-indonesia.com/wp-content/uploads/2022/05/Req-10-01-1-scaled.jpg"

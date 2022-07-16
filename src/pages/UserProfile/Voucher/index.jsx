@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import s from "./styles.module.scss";
-import img from "../../../assets/home/image 6.png";
 import { useSelector } from "react-redux";
 import { getVoucher } from "../../../api/Voucher";
 import nFormatter from "../../../utils/convertToK";
 import ConvertDate from "../../../utils/convertDate";
 import AppLoader from "../../../components/AppLoader";
 import EmptyPage from "../../../components/Empty";
-import voucher from "../../../assets/voucher.svg";
+import voucher from "../../../assets/voucher.png";
 
 const Voucher = () => {
   const user = useSelector((state) => state.user);

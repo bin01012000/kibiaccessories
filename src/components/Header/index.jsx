@@ -1,38 +1,46 @@
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
-import { useClickOutside } from "@mantine/hooks";
+
 import {
+  AutoComplete,
   Button,
   Dropdown,
   Input,
   Menu,
   message,
   notification,
+  Popover,
   Space,
 } from "antd";
 import "antd/dist/antd.min.css";
 import Cookies from "js-cookie";
 import {
+  Globe,
   Handbag,
   Heart,
   LockKey,
   SignOut,
+  Ticket,
   User,
   UserCircle,
 } from "phosphor-react";
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { getAllCategory } from "../../api/Category";
 import { getAllProductNoPage } from "../../api/Product";
 import logo from "../../assets/header/image 5.svg";
 import placeholderAvatar from "../../assets/user_avatar.jpg";
+import useOnClickOutside from "../../customHook/useClickOutSide";
 import formatName from "../../utils/formatName";
 import { Cart } from "./Cart";
 import NumItem from "./NumItemCard";
 import classes from "./styles.module.scss";
-import { AutoComplete } from "antd";
+import { LANGUAGES } from "../../utils/constant";
+import { updateLanguage } from "../../redux/userRedux";
+import { FormattedMessage } from "react-intl";
+import { useWindowSize } from "../../customHook/useWindowSize";
 const { Search } = Input;
-const { Option } = AutoComplete;
+
 const token =
   typeof Cookies.get("tokenClient") !== "undefined"
     ? Cookies.get("tokenClient")
@@ -40,21 +48,35 @@ const token =
 
 const Header = () => {
   let navigate2 = useNavigate();
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
   const cart = useSelector((state) => state.cart);
   const [isLoading, setIsLoading] = useState(true);
   const [allProduct, setAllProduct] = useState([]);
   const [allProductTemp, setAllProductTemp] = useState([]);
+  const [width, height] = useWindowSize();
+
+  const changeLanguage = (language) => {
+    dispatch(updateLanguage(language));
+  };
+
   const handleSignOut = () => {
     Cookies.remove("tokenClient");
     localStorage.removeItem("persist:root");
     navigate2("/login");
   };
 
-  if (token && token === "") {
-    localStorage.removeItem("persist:root");
-  }
+  //-----------CHECK TOKEN NULL REMOVE LOCAL
+  useEffect(() => {
+    if (!token || token === "") {
+      localStorage.removeItem("persist:root");
+      if (localStorage.getItem("persist:root")) {
+        window.location.reload();
+      }
+    }
+  }, []);
 
+  //-----------GET ALL SHOW PREVIEW SEARCH
   useEffect(() => {
     getAllProductNoPage().then((res) => {
       setAllProduct(res.products);
@@ -68,7 +90,24 @@ const Header = () => {
   const handleVisibleChange = (flag) => {
     setVisible(flag);
   };
-
+  const content = (
+    <Menu defaultChecked={2}>
+      <Menu.Item
+        style={{ borderRight: "none" }}
+        onClick={() => changeLanguage(LANGUAGES.VI)}
+        key={1}
+      >
+        VI
+      </Menu.Item>
+      <Menu.Item
+        key={2}
+        style={{ borderRight: "none" }}
+        onClick={() => changeLanguage(LANGUAGES.EN)}
+      >
+        EN
+      </Menu.Item>
+    </Menu>
+  );
   const menu = (
     <Menu onClick={handleMenuClick}>
       <Menu.Item key={1}>
@@ -107,7 +146,7 @@ const Header = () => {
           <div className={classes.icon}>
             <UserCircle size={24} className={classes.icon_box} />
           </div>
-          Your Profile
+          <FormattedMessage id="common.yourprofile" />
         </div>
       </Menu.Item>
       <Menu.Item key={3}>
@@ -121,7 +160,7 @@ const Header = () => {
           <div className={classes.icon}>
             <Heart size={24} className={classes.icon_box} />
           </div>
-          Wish List
+          <FormattedMessage id="common.wishlist" />
         </div>
       </Menu.Item>
       <Menu.Item key={4}>
@@ -135,15 +174,43 @@ const Header = () => {
           <div className={classes.icon}>
             <LockKey size={24} className={classes.icon_box} />
           </div>
-          Change Password
+          <FormattedMessage id="common.changepassword" />
         </div>
       </Menu.Item>
       <Menu.Item key={5}>
+        <div
+          onClick={() => {
+            setVisibleDropdown(false);
+            navigate2(`/myaccount/7`);
+          }}
+          className={classes.wish_list}
+        >
+          <div className={classes.icon}>
+            <Ticket size={24} className={classes.icon_box} />
+          </div>
+          <FormattedMessage id="common.yourvoucher" />
+        </div>
+      </Menu.Item>
+      <Menu.Item key={6} disabled style={{ cursor: "pointer", color: "#000" }}>
+        <Popover
+          placement={width >= 768 ? "left" : "right"}
+          content={content}
+          className={classes.sign_out}
+          arrow={false}
+          trigger="click"
+        >
+          <div className={classes.icon}>
+            <Globe size={24} className={classes.icon_box} />
+          </div>
+          <FormattedMessage id="common.changelanguage" />
+        </Popover>
+      </Menu.Item>
+      <Menu.Item key={7}>
         <div className={classes.sign_out} onClick={handleSignOut}>
           <div className={classes.icon}>
             <SignOut size={24} className={classes.icon_box} />
           </div>
-          Sign Out
+          <FormattedMessage id="common.signout" />
         </div>
       </Menu.Item>
     </Menu>
@@ -160,11 +227,11 @@ const Header = () => {
 
   const [category, setCategory] = useState({});
   const [collapsed, setCollapsed] = useState(false);
-  const menuRef = useRef(null);
+
   const headerRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [visibleDropdown, setVisibleDropdown] = useState(false);
-  const ref = useClickOutside(() => setVisible(false));
+
   const options = allProductTemp.map((item) => ({
     value: item.product,
     label: (
@@ -178,10 +245,15 @@ const Header = () => {
     ),
   }));
 
+  const ref = useRef();
+  useOnClickOutside(ref, () => setVisible(false));
+  const menuref = useRef();
+  useOnClickOutside(menuref, () => {
+    setCollapsed(false);
+  });
   // const ref2 = useClickOutside(() => setVisibleDropdown(false));
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
-    menuRef.current.classList.toggle(classes.active);
   };
 
   useEffect(() => {
@@ -193,7 +265,7 @@ const Header = () => {
   }, [cart]);
 
   const onSearch = (value) => {
-    var regex = /^[a-zA-Z]+$/;
+    var regex = /^[a-zA-Z]/;
     // console.log(value);
     if (value) {
       console.log("value", value);
@@ -278,6 +350,7 @@ const Header = () => {
               ></Search>
             </AutoComplete>
           </Space>
+
           <div className={classes.authentication}>
             {/* {!user.accessToken ? ( */}
             {user.currentUser ? (
@@ -306,7 +379,9 @@ const Header = () => {
                 onClick={() => navigate2("/login")}
               >
                 <User size={32} color="#000" weight="thin" />
-                <div className={classes.loginText}>Log In</div>
+                <div className={classes.loginText}>
+                  <FormattedMessage id="common.login" />
+                </div>
               </div>
             )}
 
@@ -349,12 +424,25 @@ const Header = () => {
       </div>
 
       {/* TOGGLE MENU MOBILE */}
-      <div className={classes.menuMobile} ref={menuRef}>
+      <div
+        className={`${classes.menuMobile} ${
+          collapsed === true ? classes.active : classes.none
+        }`}
+        ref={menuref}
+      >
         <div className={classes.navListContainer}>
           <div className={classes.navList}>
+            <Link
+              onClick={() => setCollapsed(false)}
+              to={`/`}
+              className={classes.navItem}
+            >
+              Home
+            </Link>
             {category.categories?.map((item, index) => {
               return (
                 <Link
+                  onClick={() => setCollapsed(false)}
                   to={`/viewall/${item._id}`}
                   key={index}
                   className={classes.navItem}

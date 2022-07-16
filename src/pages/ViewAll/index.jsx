@@ -52,8 +52,7 @@ const ViewAll = () => {
     getAllProduct(idCate, page)
       .then((res) => {
         document.getElementsByTagName("body").overflow = "hidden";
-        // console.log(res);
-        setListBrand(listProduct.push(...res.products));
+        setListProduct((listProduct) => [...listProduct, ...res.products]);
       })
       .catch(() => {
         message.error("Loading list failure");
@@ -83,21 +82,19 @@ const ViewAll = () => {
       });
   };
   return (
-    <>
-      <div className={styles.backgroundContainer}>
-        <ListProduct
-          data={product}
-          loading={loading}
-          fetchMore={fetchMore}
-          totalPages={totalPages}
-          listBrand={listBrand}
-          page={page}
-          handleFilter={handleFilter}
-          setPage={setPage}
-          listProduct={listProduct}
-        />
-      </div>
-    </>
+    <div className={styles.backgroundContainer}>
+      <ListProduct
+        data={product}
+        loading={loading}
+        fetchMore={fetchMore}
+        totalPages={totalPages}
+        listBrand={listBrand}
+        page={page}
+        handleFilter={handleFilter}
+        setPage={setPage}
+        listProduct={listProduct}
+      />
+    </div>
   );
 };
 

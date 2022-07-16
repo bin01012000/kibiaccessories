@@ -51,3 +51,21 @@ export const deleteComment = async (id, productId) => {
     throw Error("Something wrongs with code status" + res.status);
   return res;
 };
+
+export const checkLike = async (id, username) => {
+  const res = await callAPIWithToken.get(
+    `/api/comment/liked?id=${id}&username=${username}`
+  );
+  if (res && res.status !== 200 && res.status !== 201)
+    throw Error("Something wrongs with code status" + res.status);
+  return res;
+};
+
+export const likeComment = async (id, username) => {
+  const res = await callAPIWithToken.post(
+    `/api/comment/likecomment?id=${id}&username=${username}`
+  );
+  if (res && res.status !== 200)
+    throw Error("Something wrongs with code status" + res.status);
+  return res;
+};

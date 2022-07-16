@@ -17,6 +17,9 @@ import {
   ViewAllBlog,
   Client,
   Page500,
+  AboutUs,
+  Legal,
+  VerifyingPage,
 } from "../routes/index";
 import RequireAuth from "./RequireAuth";
 import UnRequireAuth from "./UnRequireAuth";
@@ -157,6 +160,23 @@ const AppLayout = () => {
               </UnRequireAuth>
             }
           ></Route>
+          <Route
+            path="/about-us"
+            element={
+              <UnRequireAuth>
+                <AboutUs />
+              </UnRequireAuth>
+            }
+          ></Route>
+          <Route
+            path="/legal-page"
+            element={
+              <UnRequireAuth>
+                <Legal />
+              </UnRequireAuth>
+            }
+          ></Route>
+
           <Route
             path="/viewallblog/:id"
             element={
