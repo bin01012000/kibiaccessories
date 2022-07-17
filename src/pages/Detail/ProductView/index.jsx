@@ -1,7 +1,7 @@
 import { Col, message, Rate, Row } from "antd";
 import { motion } from "framer-motion";
-import { ShoppingCartSimple, Timer } from "phosphor-react";
-import { useEffect, useState } from "react";
+import { BookmarkSimple, ShoppingCartSimple, Timer } from "phosphor-react";
+import { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { handleAddToCart } from "../../../api/Cart";
 import imgError from "../../../assets/imgDefault.webp";
@@ -15,7 +15,7 @@ const ProductView = (props) => {
   const [srcMain, setSrcMain] = useState(props.data.product.images[0]);
   const [show, setShow] = useState(false);
   const [qty, setQty] = useState(1);
-  const [width, height] = useWindowSize();
+  const [width] = useWindowSize();
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
@@ -121,7 +121,7 @@ const ProductView = (props) => {
                 đ
               </p>
             )}
-
+            <p>Warranty: {props.data.product.warranty} (months)</p>
             <Col
               style={
                 width <= 1024
@@ -134,6 +134,37 @@ const ProductView = (props) => {
               }
             >
               <Rate allowHalf disabled value={props.data.product.avgRating} />
+            </Col>
+            <Col
+              style={
+                width <= 1024
+                  ? {
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }
+                  : ""
+              }
+            >
+              {props.data.product?.branches?.map((item, index) => {
+                return (
+                  <Fragment key={index}>
+                    {item.quantity > 0 ? (
+                      <p className={styles.one_line_exists}>
+                        <BookmarkSimple
+                          size={24}
+                          weight="thin"
+                          color="#d84727"
+                        />{" "}
+                        {item.quantity} products left at the branch{" "}
+                        {item.branchName}
+                      </p>
+                    ) : (
+                      ""
+                    )}
+                  </Fragment>
+                );
+              })}
             </Col>
             <Row className={styles.function}>
               <Row className={styles.qty}>
@@ -173,7 +204,7 @@ const ProductView = (props) => {
                   className={styles.add_to_cart}
                   style={{ cursor: "auto" }}
                 >
-                  <Timer size={20} /> Coming soon
+                  <Timer size={20} /> Out of stock
                 </button>
               )}
 

@@ -1,15 +1,15 @@
 import { Empty, message, Modal } from "antd";
 import "antd/dist/antd.min.css";
+import { Trash } from "phosphor-react";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { deleteCart, downQty, getAllProductCart, upQty } from "../../api/Cart";
+import imgError from "../../assets/imgDefault.webp";
 import { getNumber } from "../../redux/cartRedux";
 import numberWithCommas from "../../utils/numberWithCommas";
-import classes from "./styles2.module.scss";
-import { Trash } from "phosphor-react";
-import DotLoading from "../Verify/DotLoading";
 import AppLoader from "../AppLoader";
+import classes from "./styles2.module.scss";
 export const Cart = (props) => {
   const cart = useSelector((state) => state.cart);
   const user = useSelector((state) => state.user);
@@ -45,7 +45,7 @@ export const Cart = (props) => {
                     <div className={classes.cart__item__left}>
                       <div className={classes.cart__item__left__image}>
                         <img
-                          src={item.productImage[0]}
+                          src={item.productImage[0] || imgError}
                           alt={item.productName}
                         />
                       </div>

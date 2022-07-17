@@ -1,13 +1,11 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-import { Navigate } from "react-router-dom";
 const token =
   typeof Cookies.get("tokenClient") !== "undefined"
     ? Cookies.get("tokenClient")
     : "";
 
 const localUrl = "http://localhost:5000";
-//console.log(process.env.URL_API);
 const jwtAxios = axios.create({
   baseURL: localUrl, // YOUR_API_URL HERE
   timeout: 5000,
@@ -59,7 +57,11 @@ callAPIWithToken.interceptors.response.use(
     }
 
     if (err.response && err.response.status === 500) {
-      // window.location.href = "/500";
+      window.location.href = "/500";
+    }
+
+    if (err.response && err.response.status === 504) {
+      window.location.href = "https://www.google.com/";
     }
     return Promise.reject(err);
   }
@@ -73,8 +75,8 @@ jwtAxios.interceptors.response.use(
     return res;
   },
   (err) => {
-    if (err.response && err.response.status === 500) {
-      // window.location.href = "/500";
+    if (err.response && err.response.status === 504) {
+      window.location.href = "https://www.google.com/";
     }
     return Promise.reject(err);
   }

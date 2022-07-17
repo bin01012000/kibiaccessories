@@ -1,18 +1,17 @@
 import { FrownOutlined, MehOutlined, SmileOutlined } from "@ant-design/icons";
 import { message, Rate } from "antd";
+import { ThumbsUp } from "phosphor-react";
 import { useEffect, useState } from "react";
 import InputEmoji from "react-input-emoji";
 import { useSelector } from "react-redux";
 import {
-  checkLike,
   createComment,
   deleteComment,
   getCommentByProduct,
   likeComment,
 } from "../../../api/Comment";
-import s from "./styles.module.scss";
 import avatarPlaceholder from "../../../assets/user_avatar.jpg";
-import { ThumbsUp } from "phosphor-react";
+import s from "./styles.module.scss";
 const Comment = (props) => {
   const [rating, setRating] = useState(5);
   const [content, setContent] = useState("");
@@ -35,7 +34,7 @@ const Comment = (props) => {
       setTotalPages(res.data.totalPages);
       setListComment((listComment) => [...listComment, ...res.data.comments]);
     });
-  }, [page, props.data.product._id, reload, reload2]);
+  }, [reload2, page, props.data.product._id, reload]);
 
   useEffect(() => {
     getCommentByProduct(props.data.product._id, 1).then((res) => {
@@ -135,27 +134,33 @@ const Comment = (props) => {
               <p className={s.comment}>{item?.comment}</p>
               <div className={s.like_delete}>
                 {a === true ? (
-                  <ThumbsUp
-                    style={{ cursor: "pointer" }}
-                    size={20}
-                    weight="bold"
-                    color="#d84727"
-                    onClick={() => {
-                      like(item?._id, user.currentUser?.username);
-                      setReload2(!reload2);
-                    }}
-                  />
+                  <>
+                    <ThumbsUp
+                      style={{ cursor: "pointer" }}
+                      size={20}
+                      weight="bold"
+                      color="#d84727"
+                      onClick={() => {
+                        like(item?._id, user.currentUser?.username);
+                        setReload2(!reload2);
+                      }}
+                    />{" "}
+                    {item.countLike > 0 && `(${item.countLike})`}
+                  </>
                 ) : (
-                  <ThumbsUp
-                    style={{ cursor: "pointer" }}
-                    size={20}
-                    weight="bold"
-                    color="#999"
-                    onClick={() => {
-                      like(item?._id, user.currentUser?.username);
-                      setReload2(!reload2);
-                    }}
-                  />
+                  <>
+                    <ThumbsUp
+                      style={{ cursor: "pointer" }}
+                      size={20}
+                      weight="bold"
+                      color="#999"
+                      onClick={() => {
+                        like(item?._id, user.currentUser?.username);
+                        setReload2(!reload2);
+                      }}
+                    />
+                    {item.countLike > 0 && `(${item.countLike})`}
+                  </>
                 )}
 
                 {item?.username === user.currentUser?.username ? (
