@@ -66,16 +66,6 @@ const Header = () => {
     navigate2("/login");
   };
 
-  //-----------CHECK TOKEN NULL REMOVE LOCAL
-  useEffect(() => {
-    if (!token || token === "") {
-      localStorage.removeItem("persist:root");
-      if (localStorage.getItem("persist:root")) {
-        window.location.reload();
-      }
-    }
-  }, []);
-
   //-----------GET ALL SHOW PREVIEW SEARCH
   useEffect(() => {
     getAllProductNoPage().then((res) => {
@@ -350,7 +340,7 @@ const Header = () => {
             </AutoComplete>
           </Space>
 
-          <div className={classes.authentication}>
+          <div className={classes.authentication} id="area">
             {/* {!user.accessToken ? ( */}
             {user.currentUser ? (
               <Dropdown
@@ -360,6 +350,7 @@ const Header = () => {
                 trigger={["click"]}
                 // visible={visibleDropdown}
                 overlayClassName={classes.menu_header}
+                getPopupContainer={() => document.getElementById("area")}
               >
                 <div
                   className={classes.login}

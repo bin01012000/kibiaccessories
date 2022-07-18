@@ -30,7 +30,7 @@ import { checkExist, updateEmail } from "../../../api/User";
 import userPlaceholder from "../../../assets/user_avatar.jpg";
 import { app } from "../../../firebase/firebase";
 import { updateProfile } from "../../../redux/apiCalls";
-import { updateSuccess } from "../../../redux/userRedux";
+import { updateEmailRedux, updateSuccess } from "../../../redux/userRedux";
 import UpdateEmail from "../UpdateEmail";
 import UpdatePassword from "../UpdatePassword";
 import UpdatePhone from "../UpdatePhone";
@@ -60,18 +60,17 @@ const MyAccount = () => {
   const [update, setUpdate] = useState(0);
   const [avatar, setAvatar] = useState();
   const user = useSelector((state) => state.user);
-  const [, setSearchParams] = useSearchParams();
-
+  const [searchParams, setSearchParams] = useSearchParams();
   const search = useLocation().search;
-
   const prv = new URLSearchParams(search).get("prv");
   const showpassword = new URLSearchParams(search).get("showpass");
   const [verify, setVerify] = useState(false);
+  const query = new URLSearchParams(search);
+  const id = new URLSearchParams(search).get("id");
+  const email = new URLSearchParams(search).get("email");
+
   useEffect(() => {
-    let query = new URLSearchParams(search);
-    let id = new URLSearchParams(search).get("id");
-    let email = new URLSearchParams(search).get("email");
-    if (prv != null && prv !== undefined) {
+    if (prv !== null && prv !== undefined) {
       var tempprv = prv.replaceAll(" ", "+");
       var hashedPassword = CryptoJS.AES.decrypt(
         tempprv,
@@ -79,7 +78,7 @@ const MyAccount = () => {
       );
       var OriginalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
     } else {
-      OriginalPassword = "";
+      var OriginalPassword = "";
     }
 
     if (
@@ -88,8 +87,9 @@ const MyAccount = () => {
       query.has("email") &&
       OriginalPassword === email
     ) {
-      updateEmail(user.currentUser._id, email).then((res) => {
+      updateEmail(user.currentUser?._id, email).then((res) => {
         if (res.status === 200) {
+          dispatch(updateEmailRedux(email));
           message.success("Update successful!");
           search.delete("id");
           search.delete("email");
@@ -100,7 +100,7 @@ const MyAccount = () => {
       setVerify(false);
       setSearchParams("");
     }
-  }, [prv, search, setSearchParams, user.currentUser._id]);
+  }, []);
 
   useEffect(() => {
     if (showpassword === "true") {
@@ -108,7 +108,7 @@ const MyAccount = () => {
       showModal();
     }
     setSearchParams("");
-  }, [setSearchParams, showpassword]);
+  }, []);
 
   const handleUpdateEmail = (email) => {
     checkExist(email).then((res) => {
@@ -134,7 +134,7 @@ const MyAccount = () => {
             {
               to_name: email,
               from_name: "kibiaccessories@kibi.vn",
-              link: `https://localhost:3000/myaccount/1/?id=${result}&email=${email}&prv=${enc}`,
+              link: `https://kibiaccessories.herokuapp.com/myaccount/1/?id=${result}&email=${email}&prv=${enc}`,
             },
             "v3GcHX1OV7AjPKEdx"
           )
@@ -151,7 +151,6 @@ const MyAccount = () => {
         message.error("Email already exists");
       }
     });
-    setTimeout(() => setVerify(false), 6000);
   };
 
   const showModal = () => {
@@ -375,6 +374,9 @@ const MyAccount = () => {
                               onChange={(value) =>
                                 setFieldValue("gender", value)
                               }
+                              getPopupContainer={(trigger) =>
+                                trigger.parentElement
+                              }
                             >
                               <Option value="male">Male</Option>
                               <Option value="female">Female</Option>
@@ -411,8 +413,9 @@ const MyAccount = () => {
                         <p className={s.text_info}>Phone and Email</p>
                         <div className={s.phone}>
                           <div className={s.title}>
-                            <Phone size={24} /> Phone (+
-                            {user.currentUser?.phone})
+                            <Phone size={24} /> Phone
+                            {user.currentUser?.phone !== "0" &&
+                              ` (${user.currentUser?.phone})`}
                           </div>
                           <div
                             className={s.button_update}
@@ -433,11 +436,24 @@ const MyAccount = () => {
                           <div
                             className={s.button_update}
                             onClick={() => {
-                              setUpdate(1);
-                              showModal();
+                              if (user.currentUser.isSocial !== true) {
+                                setUpdate(1);
+                                showModal();
+                              }
                             }}
                           >
-                            <div className={s.btn_update}>Update</div>
+                            <div
+                              className={s.btn_update}
+                              style={{
+                                color:
+                                  user.currentUser.isSocial === true && "#999",
+                                cursor:
+                                  user.currentUser.isSocial === true &&
+                                  "not-allowed",
+                              }}
+                            >
+                              Update
+                            </div>
                           </div>
                         </div>
 

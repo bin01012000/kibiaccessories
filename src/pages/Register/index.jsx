@@ -57,7 +57,7 @@ const Register = (props) => {
             {
               to_name: email,
               from_name: "kibiaccessories@gmail.com",
-              link: `https://localhost:3000/login?id=${result}&email=${email}&prv=${enc}&name=${
+              link: `https://kibiaccessories.herokuapp.com/login?id=${result}&email=${email}&prv=${enc}&name=${
                 name.includes(" ") ? name.replaceAll(" ", "+") : name
               }&cityid=${provinceId}&wardid=${wardId}&districtid=${districtId}&address=${
                 address.includes(" ") ? address.replaceAll(" ", "+") : address
@@ -141,19 +141,17 @@ const Register = (props) => {
     getDistrict(provinceId).then((res) => {
       if (res) {
         setDistrict(res.data.data);
-        setDistrictId(res.data.data[0].DistrictID);
       }
     });
-  }, [provinceId]);
+  }, []);
 
   useEffect(() => {
     getWard(districtId).then((res) => {
       if (res) {
         setWard(res.data.data);
-        setWardId(res.data.data[0].WardCode);
       }
     });
-  }, [districtId, provinceId]);
+  }, []);
 
   return (
     <>
@@ -239,6 +237,20 @@ const Register = (props) => {
                   placeholder="Please choose your province"
                   onSelect={(value) => {
                     setProvinceId(value);
+                    getDistrict(value)
+                      .then((res) => {
+                        if (res) {
+                          setDistrict(res.data.data);
+                          setDistrictId(res.data.data[0].DistrictID);
+                          getWard(res.data.data[0].DistrictID).then((res) => {
+                            if (res) {
+                              setWard(res.data.data);
+                              setWardId(res.data.data[0].WardCode);
+                            }
+                          });
+                        }
+                      })
+                      .finally(() => {});
                   }}
                   value={provinceId}
                   defaultActiveFirstOption={true}
@@ -269,6 +281,12 @@ const Register = (props) => {
                   placeholder="Please choose your district"
                   onSelect={(value) => {
                     setDistrictId(value);
+                    getWard(value).then((res) => {
+                      if (res) {
+                        setWard(res.data.data);
+                        setWardId(res.data.data[0].WardCode);
+                      }
+                    });
                   }}
                   value={districtId}
                   defaultActiveFirstOption={true}

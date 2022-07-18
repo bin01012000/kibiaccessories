@@ -24,6 +24,12 @@ const userSlice = createSlice({
         setAuthToken(action.payload.access_token);
       }
     },
+    updatePhoneRedux: (state, action) => {
+      state.currentUser["phone"] = action.payload;
+    },
+    updateEmailRedux: (state, action) => {
+      state.currentUser["email"] = action.payload;
+    },
     updateStart: (state) => {
       state.isFetching = true;
     },
@@ -43,5 +49,7 @@ export const {
   updateStart,
   updateSuccess,
   updateLanguage,
+  updatePhoneRedux,
+  updateEmailRedux,
 } = userSlice.actions;
 export default userSlice.reducer;

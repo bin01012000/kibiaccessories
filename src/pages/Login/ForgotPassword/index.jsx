@@ -27,7 +27,7 @@ const ForgotPassword = (props) => {
         {
           to_name: email,
           from_name: "bin01012000@gmail.com",
-          link: ` https://localhost:3000/login?email=${email}&prv=${enc}&ps=${result}`,
+          link: ` https://kibiaccessories.herokuapp.com/login?email=${email}&prv=${enc}&ps=${result}`,
         },
         "v3GcHX1OV7AjPKEdx"
       )
