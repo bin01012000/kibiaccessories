@@ -31,6 +31,8 @@ const Payment = () => {
   const [provinceId, setProvinceId] = useState(202);
   const navigate = useNavigate();
   const currentStateUrl = location.pathname.split("/")[1];
+  const [sendEmail, setSendEmail] = useState(false);
+
   useEffect(() => {
     window.scrollTo(0, 0);
     setStep(
@@ -42,7 +44,9 @@ const Payment = () => {
   useEffect(() => {
     getAddress(user.currentUser.username)
       .then((res) => {
-        setAdrress(res[0].addressList);
+        if (res[0].addressList) {
+          setAdrress(res[0].addressList);
+        }
       })
       .catch(() => {
         message.error("Loading address fail, you must create one to continue");
@@ -166,6 +170,7 @@ const Payment = () => {
                   handleTakeFromWard={handleTakeFromWard}
                   handleTakeProvinceId={handleTakeProvinceId}
                   branchName={branchName}
+                  setSendEmail={setSendEmail}
                 />
               )}
               {step === 2 && (
@@ -179,6 +184,8 @@ const Payment = () => {
                   fromWard={fromWard}
                   provinceId={provinceId}
                   branchName={branchName}
+                  setSendEmail={setSendEmail}
+                  sendEmail={sendEmail}
                 />
               )}
             </div>

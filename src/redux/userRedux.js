@@ -30,6 +30,9 @@ const userSlice = createSlice({
     updateEmailRedux: (state, action) => {
       state.currentUser["email"] = action.payload;
     },
+    updateAvatarRedux: (state, action) => {
+      state.currentUser["avatar"] = action.payload;
+    },
     updateStart: (state) => {
       state.isFetching = true;
     },

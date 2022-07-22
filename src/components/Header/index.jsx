@@ -39,6 +39,7 @@ import { LANGUAGES } from "../../utils/constant";
 import { updateLanguage } from "../../redux/userRedux";
 import { FormattedMessage } from "react-intl";
 import { useWindowSize } from "../../customHook/useWindowSize";
+import OneSignal from "react-onesignal";
 const { Search } = Input;
 
 const token =
@@ -56,6 +57,12 @@ const Header = () => {
   const [allProductTemp, setAllProductTemp] = useState([]);
   const [width] = useWindowSize();
 
+  useEffect(() => {
+    OneSignal.init({
+      appId: "4c393bce-fb44-43de-9101-44465cc708d3",
+    });
+  }, []);
+
   const changeLanguage = (language) => {
     dispatch(updateLanguage(language));
   };
@@ -69,8 +76,8 @@ const Header = () => {
   //-----------GET ALL SHOW PREVIEW SEARCH
   useEffect(() => {
     getAllProductNoPage().then((res) => {
-      setAllProduct(res.products);
-      setAllProductTemp(res.products);
+      setAllProduct(res?.products);
+      setAllProductTemp(res?.products);
     });
   }, []);
 
@@ -98,14 +105,14 @@ const Header = () => {
   );
   const menu = (
     <Menu onClick={handleMenuClick}>
-      <Menu.Item key={1}>
-        <div
-          onClick={() => {
-            setVisibleDropdown(false);
-            navigate2(`/myaccount/1`);
-          }}
-          className={classes.box_profile}
-        >
+      <Menu.Item
+        key={1}
+        onClick={() => {
+          setVisibleDropdown(false);
+          navigate2(`/myaccount/1`);
+        }}
+      >
+        <div className={classes.box_profile}>
           <div className={classes.avatar_menu}>
             <img
               src={
@@ -123,63 +130,63 @@ const Header = () => {
           </p>
         </div>
       </Menu.Item>
-      <Menu.Item key={2}>
-        <div
-          onClick={() => {
-            setVisibleDropdown(false);
-            navigate2(`/myaccount/1`);
-          }}
-          className={classes.link_to_profile}
-        >
+      <Menu.Item
+        key={2}
+        onClick={() => {
+          setVisibleDropdown(false);
+          navigate2(`/myaccount/1`);
+        }}
+      >
+        <div className={classes.link_to_profile}>
           <div className={classes.icon}>
             <UserCircle size={24} className={classes.icon_box} />
           </div>
           <FormattedMessage id="common.yourprofile" />
         </div>
       </Menu.Item>
-      <Menu.Item key={3}>
-        <div
-          onClick={() => {
-            setVisibleDropdown(false);
-            navigate2(`/myaccount/4`);
-          }}
-          className={classes.wish_list}
-        >
+      <Menu.Item
+        key={3}
+        onClick={() => {
+          setVisibleDropdown(false);
+          navigate2(`/myaccount/4`);
+        }}
+      >
+        <div className={classes.wish_list}>
           <div className={classes.icon}>
             <Heart size={24} className={classes.icon_box} />
           </div>
           <FormattedMessage id="common.wishlist" />
         </div>
       </Menu.Item>
-      <Menu.Item key={4}>
-        <div
-          onClick={() => {
-            setVisibleDropdown(false);
-            navigate2(`/myaccount/1?showpass=true`);
-          }}
-          className={classes.wish_list}
-        >
+      <Menu.Item
+        key={4}
+        onClick={() => {
+          setVisibleDropdown(false);
+          navigate2(`/myaccount/1?showpass=true`);
+        }}
+      >
+        <div className={classes.wish_list}>
           <div className={classes.icon}>
             <LockKey size={24} className={classes.icon_box} />
           </div>
           <FormattedMessage id="common.changepassword" />
         </div>
       </Menu.Item>
-      <Menu.Item key={5}>
-        <div
-          onClick={() => {
-            setVisibleDropdown(false);
-            navigate2(`/myaccount/7`);
-          }}
-          className={classes.wish_list}
-        >
+      <Menu.Item
+        key={5}
+        onClick={() => {
+          setVisibleDropdown(false);
+          navigate2(`/myaccount/7`);
+        }}
+      >
+        <div className={classes.wish_list}>
           <div className={classes.icon}>
             <Ticket size={24} className={classes.icon_box} />
           </div>
           <FormattedMessage id="common.yourvoucher" />
         </div>
       </Menu.Item>
-      <Menu.Item key={6} disabled style={{ cursor: "pointer", color: "#000" }}>
+      {/* <Menu.Item key={6} disabled style={{ cursor: "pointer", color: "#000" }}>
         <Popover
           placement={width >= 768 ? "left" : "right"}
           content={content}
@@ -193,9 +200,9 @@ const Header = () => {
           </div>
           <FormattedMessage id="common.changelanguage" />
         </Popover>
-      </Menu.Item>
-      <Menu.Item key={7}>
-        <div className={classes.sign_out} onClick={handleSignOut}>
+      </Menu.Item> */}
+      <Menu.Item key={7} onClick={handleSignOut}>
+        <div className={classes.sign_out}>
           <div className={classes.icon}>
             <SignOut size={24} className={classes.icon_box} />
           </div>
@@ -205,10 +212,12 @@ const Header = () => {
     </Menu>
   );
 
+  useEffect(() => {}, []);
+
   const openNotificationWithIcon = (type) => {
     notification[type]({
       message: "Error",
-      description: "Can't fill in special character",
+      description: "Can't fill in special character or empty",
     });
   };
 
@@ -221,7 +230,7 @@ const Header = () => {
   const [visible, setVisible] = useState(false);
   const [visibleDropdown, setVisibleDropdown] = useState(false);
 
-  const options = allProductTemp.map((item) => ({
+  const options = allProductTemp?.map((item) => ({
     value: item.product,
     label: (
       <div style={{ display: "flex", textAlign: "center" }}>
@@ -255,12 +264,10 @@ const Header = () => {
 
   const onSearch = (value) => {
     // eslint-disable-next-line no-unused-vars
-    var regex = /^[a-zA-Z]/;
+    var regex = /^[a-zA-Z0-9_ ]*$/g;
 
-    if (value) {
+    if (value && regex.test(value) && value !== "") {
       navigate(`/search/${value}`);
-    } else if (value === "") {
-      return;
     } else {
       openNotificationWithIcon("warning");
     }
@@ -275,6 +282,21 @@ const Header = () => {
         setIsLoading={setIsLoading}
       />
       <div className={classes.headerContainer} ref={headerRef}>
+        <div className={classes.change_language_unauth}>
+          <p
+            onClick={() => changeLanguage(LANGUAGES.VI)}
+            style={{ color: `${user.language === "vi" ? "#d84727" : "#000"}` }}
+          >
+            VI /{" "}
+          </p>
+          <p
+            onClick={() => changeLanguage(LANGUAGES.EN)}
+            style={{ color: `${user.language === "en" ? "#d84727" : "#000"}` }}
+          >
+            {" "}
+            &nbsp;EN
+          </p>
+        </div>
         <div className={classes.top}>
           <div className={classes.menu}>
             <Button
@@ -342,7 +364,21 @@ const Header = () => {
 
           <div className={classes.authentication} id="area">
             {/* {!user.accessToken ? ( */}
-            {user.currentUser ? (
+            {!user.currentUser ? (
+              <div
+                to={"/login"}
+                className={classes.login}
+                onClick={() => navigate2("/login")}
+              >
+                <User size={32} color="#000" weight="thin" />
+                <div
+                  className={classes.loginText}
+                  style={{ maxWidth: "40px", whiteSpace: "nowrap" }}
+                >
+                  <FormattedMessage id="common.login" />
+                </div>
+              </div>
+            ) : (
               <Dropdown
                 overlay={menu}
                 placement="bottomLeft"
@@ -362,17 +398,6 @@ const Header = () => {
                   </div>
                 </div>
               </Dropdown>
-            ) : (
-              <div
-                to={"/login"}
-                className={classes.login}
-                onClick={() => navigate2("/login")}
-              >
-                <User size={32} color="#000" weight="thin" />
-                <div className={classes.loginText}>
-                  <FormattedMessage id="common.login" />
-                </div>
-              </div>
             )}
 
             <div

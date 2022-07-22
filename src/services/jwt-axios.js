@@ -5,7 +5,7 @@ const token =
     ? Cookies.get("tokenClient")
     : "";
 
-const localUrl = "https://kibiaccessoriesapi.herokuapp.com";
+const localUrl = "http://localhost:5000";
 const jwtAxios = axios.create({
   baseURL: localUrl, // YOUR_API_URL HERE
   timeout: 5000,
@@ -46,11 +46,11 @@ callAPIWithToken.interceptors.response.use(
     return res;
   },
   (err) => {
-    // if (err.response && err.response.status === 401) {
-    //   localStorage.removeItem("persist:root");
-    //   Cookies.remove("tokenClient");
-    //   window.location.href = "/login";
-    // }
+    if (err.response && err.response.status === 401) {
+      localStorage.removeItem("persist:root");
+      Cookies.remove("tokenClient");
+      window.location.href = "/login";
+    }
 
     if (err.response && err.response.status === 403) {
       localStorage.removeItem("persist:root");

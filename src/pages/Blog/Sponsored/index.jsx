@@ -15,7 +15,7 @@ const Sponsored = () => {
   const [blogList, setBlogList] = useState([]);
   const [catBlog, setCatBlog] = useState({});
   useEffect(() => {
-    getCategoryBlogById("62ca8b456fa219ccec1fc512").then((res) => {
+    getCategoryBlogById("62da22af46be379e9f816c22").then((res) => {
       setCatBlog(res);
     });
   }, []);
