@@ -57,18 +57,13 @@ const Popular = () => {
         modules={[Pagination]}
         className={s.swiper_popular}
       >
-        <SwiperSlide>
-          <SmallBlog />
-        </SwiperSlide>
-        <SwiperSlide>
-          <SmallBlog />
-        </SwiperSlide>
-        <SwiperSlide>
-          <SmallBlog />
-        </SwiperSlide>
-        <SwiperSlide>
-          <SmallBlog />
-        </SwiperSlide>
+        {blogList.blogs?.map((item, index) => {
+          return (
+            <SwiperSlide key={index}>
+              <SmallBlog item={item} />
+            </SwiperSlide>
+          );
+        })}
       </Swiper>
     </div>
   );

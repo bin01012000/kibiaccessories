@@ -24,6 +24,7 @@ import Cookies from "js-cookie";
 import moment from "moment";
 import { EnvelopeSimple, Key, Phone } from "phosphor-react";
 import React, { useEffect, useLayoutEffect, useState } from "react";
+import { FormattedMessage } from "react-intl";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { checkExist, updateEmail } from "../../../api/User";
@@ -260,12 +261,16 @@ const MyAccount = () => {
                   <Col className={s.box} span={24}>
                     <div className={s.title}>
                       <h3 className={s.tde}>
-                        <span>Account Information</span>
+                        <span>
+                          <FormattedMessage id="inprofile.accountinfo" />
+                        </span>
                       </h3>
                     </div>
                     <Row className={s.form_info}>
                       <Col span={24} xl={12} lg={24} sm={24}>
-                        <p className={s.text_info}>Personal Information</p>
+                        <p className={s.text_info}>
+                          <FormattedMessage id="inprofile.personalinfo" />
+                        </p>
                         <Row className={s.avatar_name}>
                           <Col
                             span={24}
@@ -397,7 +402,7 @@ const MyAccount = () => {
                             htmlType="submit"
                             className={s.button_saveinfo_tablet}
                           >
-                            Submit
+                            <FormattedMessage id="inprofile.submit" />
                           </Button>
                         </div>
                         <FormAnt.Item
@@ -411,17 +416,21 @@ const MyAccount = () => {
                             htmlType="submit"
                             className={s.button_saveinfo}
                           >
-                            Submit
+                            <FormattedMessage id="inprofile.submit" />
                           </Button>
                         </FormAnt.Item>
                       </Col>
                       <Col span={24} lg={12} sm={24}>
                         <div className={s.full_content_right}>
-                          <p className={s.text_info}>Phone and Email</p>
+                          <p className={s.text_info}>
+                            <FormattedMessage id="inprofile.phoneandemail" />
+                          </p>
                           <div className={s.phone}>
                             <div className={s.title}>
-                              <Phone size={24} /> Phone
-                              {user.currentUser?.phone !==
+                              <Phone size={24} />{" "}
+                              <FormattedMessage id="inprofile.phone" />
+                              {(user.currentUser?.phone !== 0 ||
+                                user.currentUser?.phone !== "0") &&
                                 `(${user.currentUser?.phone})`}
                             </div>
                             <div
@@ -432,12 +441,15 @@ const MyAccount = () => {
                               }}
                             >
                               <span></span>
-                              <div className={s.btn_update}>Update</div>
+                              <div className={s.btn_update}>
+                                <FormattedMessage id="inprofile.update" />
+                              </div>
                             </div>
                           </div>
                           <div className={s.email}>
                             <div className={s.title}>
-                              <EnvelopeSimple size={24} /> Email (
+                              <EnvelopeSimple size={24} />{" "}
+                              <FormattedMessage id="inprofile.email" /> (
                               {user.currentUser?.email})
                             </div>
                             <div
@@ -456,18 +468,21 @@ const MyAccount = () => {
                                   "not-allowed",
                               }}
                             >
-                              <div className={s.btn_update}>Update</div>
+                              <div className={s.btn_update}>
+                                <FormattedMessage id="inprofile.update" />
+                              </div>
                             </div>
                           </div>
                           <p
                             className={s.text_info}
                             style={{ marginTop: "40px" }}
                           >
-                            Security
+                            <FormattedMessage id="inprofile.security" />
                           </p>
                           <div className={s.password}>
                             <div className={s.title}>
-                              <Key size={24} /> Password
+                              <Key size={24} />{" "}
+                              <FormattedMessage id="inprofile.password" />
                             </div>
                             <div
                               className={s.button_update}
@@ -485,7 +500,9 @@ const MyAccount = () => {
                                   "not-allowed",
                               }}
                             >
-                              <div className={s.btn_update}>Update</div>
+                              <div className={s.btn_update}>
+                                <FormattedMessage id="inprofile.update" />
+                              </div>
                             </div>
                           </div>
                         </div>

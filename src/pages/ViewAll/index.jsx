@@ -66,11 +66,11 @@ const ViewAll = () => {
     setLoading(true);
     getAllProduct(
       idCate || "",
-      1,
-      name,
-      idBrand,
-      fromPrice,
-      toPrice,
+      page || "",
+      name || "",
+      idBrand || "",
+      fromPrice || "",
+      toPrice || "",
       rating || ""
     )
       .then((res) => {

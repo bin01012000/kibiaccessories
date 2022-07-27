@@ -19,6 +19,7 @@ const LatestArticle = () => {
   useEffect(() => {
     if (catBlog.cate?._id) {
       getBlogByCate(catBlog.cate?._id, 5).then((res) => {
+        console.log("res:", res);
         setBlogList(res);
       });
     }
@@ -41,15 +42,6 @@ const LatestArticle = () => {
           }
         })}
       </div>
-      {/* <div className={s.list_blog}>
-        <NormalBlog />
-        <NormalBlog />
-      </div> */}
-      {/* <div className={s.list_small_blog}>
-        <SmallBlog />
-        <SmallBlog />
-        <SmallBlog />
-      </div> */}
     </div>
   );
 };

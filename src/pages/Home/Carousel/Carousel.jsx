@@ -12,6 +12,7 @@ import watch4 from "../../../assets/home/image 9.png";
 import WaveAnimation from "../../../components/WaveAnimation";
 import { FormattedMessage } from "react-intl";
 import classes from "./styles.module.scss";
+import { Link } from "react-router-dom";
 const carouselData = [
   {
     display: "Kibi Redline",
@@ -65,10 +66,13 @@ const Carousel = () => {
                       <Timer size={20} weight="light" />
                       <FormattedMessage id="common.comingsoon" />
                     </button>
-                    <button className={classes.watchMore}>
+                    <Link
+                      to={"viewall/62da201546be379e9f816bf2"}
+                      className={classes.watchMore}
+                    >
                       <Watch size={20} weight="light" />
                       <FormattedMessage id="common.watchmore" />
-                    </button>
+                    </Link>
                   </div>
                   <div className={classes.sliderBtn}>
                     <ArrowSquareLeft

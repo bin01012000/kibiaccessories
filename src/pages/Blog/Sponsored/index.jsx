@@ -26,7 +26,7 @@ const Sponsored = () => {
         setBlogList(res);
       });
     }
-  }, []);
+  }, [catBlog.cate?._id]);
 
   return (
     <div className={s.container}>
@@ -61,33 +61,13 @@ const Sponsored = () => {
           },
         }}
       >
-        <SwiperSlide>
-          <NormalBlog />
-        </SwiperSlide>
-        <SwiperSlide>
-          <NormalBlog />
-        </SwiperSlide>
-        <SwiperSlide>
-          <NormalBlog />
-        </SwiperSlide>
-        <SwiperSlide>
-          <NormalBlog />
-        </SwiperSlide>
-        <SwiperSlide>
-          <NormalBlog />
-        </SwiperSlide>
-        <SwiperSlide>
-          <NormalBlog />
-        </SwiperSlide>
-        <SwiperSlide>
-          <NormalBlog />
-        </SwiperSlide>
-        <SwiperSlide>
-          <NormalBlog />
-        </SwiperSlide>
-        <SwiperSlide>
-          <NormalBlog />
-        </SwiperSlide>
+        {blogList.blogs?.map((item, index) => {
+          return (
+            <SwiperSlide key={index}>
+              <NormalBlog item={item} />
+            </SwiperSlide>
+          );
+        })}
       </Swiper>
     </div>
   );
